@@ -40,21 +40,16 @@ import org.postgresql.util.PSQLState;
 import java.io.IOException;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.CallableStatement;
 import java.sql.ClientInfoStatus;
 import java.sql.Clob;
-//import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.sql.Connection;
 import java.sql.NClob;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLPermission;
 import java.sql.SQLWarning;
 import java.sql.SQLXML;
 import java.sql.Savepoint;
-//import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Types;
 import java.util.Enumeration;
@@ -595,7 +590,7 @@ public class VxConnection {
 		}
 	}
 
-	protected TypeInfo createTypeInfo(BaseConnection conn, int unknownLength) {
+	protected TypeInfo createTypeInfo(PgConnection conn, int unknownLength) {
 		return new TypeInfoCache(conn, unknownLength);
 	}
 
@@ -978,7 +973,7 @@ public class VxConnection {
 	}
 
 	// This is a cache of the DatabaseMetaData instance for this connection
-	protected java.sql.DatabaseMetaData metadata;
+	protected VxDatabaseMetaData metadata;
 
 	public boolean isClosed() throws SQLException {
 		return queryExecutor.isClosed();
@@ -1213,10 +1208,10 @@ public class VxConnection {
 		return new VxCallableStatement(this, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
 	}
 
-	public DatabaseMetaData getMetaData() throws SQLException {
+	public VxDatabaseMetaData getMetaData() throws SQLException {
 		checkClosed();
 		if (metadata == null) {
-			metadata = new PgDatabaseMetaData(this.createConnection());
+			metadata = new VxDatabaseMetaData(this);
 		}
 		return metadata;
 	}

@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import static com.ea.async.Async.await;
 
-class VxCallableStatement extends VxPreparedStatement {
+public class VxCallableStatement extends VxPreparedStatement {
 	// Used by the callablestatement style methods
 	private boolean isFunction;
 	// functionReturnType contains the user supplied value to check

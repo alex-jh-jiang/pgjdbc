@@ -1489,18 +1489,27 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 			String[] s = quotelessTableName(tableName);
 			String quotelessTableName = s[0];
 			String quotelessSchemaName = s[1];
-			java.sql.ResultSet rs = connection.getMetaData().getPrimaryKeys("", quotelessSchemaName,
-					quotelessTableName);
-			while (rs.next()) {
-				numPKcolumns++;
-				String columnName = rs.getString(4); // get the columnName
-				int index = findColumnIndex(columnName);
+			VxResultSet rs;
+      try {
+        rs = connection.getMetaData().getPrimaryKeys("", quotelessSchemaName,
+        		quotelessTableName);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
+			try {
+        while (rs.next().get()) {
+        	numPKcolumns++;
+        	String columnName = rs.getString(4).get(); // get the columnName
+        	int index = findColumnIndex(columnName);
 
-				if (index > 0) {
-					i++;
-					primaryKeys.add(new PrimaryKey(index, columnName)); // get the primary key information
-				}
-			}
+        	if (index > 0) {
+        		i++;
+        		primaryKeys.add(new PrimaryKey(index, columnName)); // get the primary key information
+        	}
+        }
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
 
 			rs.close();
 		}

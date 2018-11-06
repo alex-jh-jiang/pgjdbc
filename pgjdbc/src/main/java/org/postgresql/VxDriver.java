@@ -280,7 +280,7 @@ public class VxDriver {
           PSQLState.UNEXPECTED_ERROR, ex2);
     }
   }
-
+  
   // Used to check if the handler file is the same
   private static String loggerHandlerFile;
 

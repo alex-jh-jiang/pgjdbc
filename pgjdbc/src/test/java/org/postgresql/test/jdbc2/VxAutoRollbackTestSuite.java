@@ -174,7 +174,7 @@ public class VxAutoRollbackTestSuite extends VxBaseTest4 {
     Collection<Object[]> ids = new ArrayList<Object[]>();
     boolean[] booleans = new boolean[] {true, false};
     
-    /*
+    
     for (AutoSave autoSave : AutoSave.values()) {
       for (AutoCommit autoCommit : AutoCommit.values()) {
         for (FailMode failMode : FailMode.values()) {
@@ -208,7 +208,7 @@ public class VxAutoRollbackTestSuite extends VxBaseTest4 {
         }
       }
     }
-    */
+    /*
     //test
     ids.clear();
     AutoSave autoSave = AutoSave.NEVER;
@@ -220,7 +220,7 @@ public class VxAutoRollbackTestSuite extends VxBaseTest4 {
     TestStatement statement = TestStatement.SELECT;
     ReturnColumns columns = ReturnColumns.STAR;
     ids.add(new Object[]{autoSave, autoCommit, failMode, continueMode, flushCacheOnDeallocate, trans, statement, columns});
-    
+    */
     
     return ids;
   }
