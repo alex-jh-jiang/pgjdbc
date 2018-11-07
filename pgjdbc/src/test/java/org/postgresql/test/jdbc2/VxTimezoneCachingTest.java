@@ -255,7 +255,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.executeBatch().get();
       stmt = con.createStatement();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       assertEquals("Cache never initialized: must be null", null, getTimeZoneCache(rs));
       rs.getInt(1);
       assertEquals("Cache never initialized: must be null", null, getTimeZoneCache(rs));
@@ -264,7 +264,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
           tz, getTimeZoneCache(rs));
       rs.close();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       rs.getInt(1);
       assertEquals("Cache never initialized: must be null", null, getTimeZoneCache(rs));
       rs.getObject(2);
@@ -272,7 +272,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
           tz, getTimeZoneCache(rs));
       rs.close();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       assertEquals("Cache should NOT be set", null, getTimeZoneCache(rs));
       rs.getInt(1);
       assertEquals("Cache never initialized: must be null", null, getTimeZoneCache(rs));
@@ -312,14 +312,14 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.executeBatch().get();
       stmt = con.createStatement();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       rs.getInt(1);
       assertEquals(
           "Current TZ is tz1, empty cache to be initialized to tz1 => retrieve in tz1, timestamps must be equal",
           ts1, rs.getTimestamp(2).get());
       rs.close();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       rs.getInt(1);
       TimeZone.setDefault(tz2);
       assertEquals(
@@ -337,7 +337,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
           ts2, rs.getTimestamp(2).get());
       rs.close();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
-      rs.next();
+      rs.next().get();
       rs.getInt(1);
       assertEquals(
           "Explicit tz2 calendar, so timestamps cannot be equal",
@@ -365,7 +365,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
     TimeZone prevTz = TimeZone.getDefault();
     TimeZone.setDefault(tz);
     VxResultSet rs = stmt.executeQuery("SELECT col2 FROM testtz").get();
-    rs.next();
+    rs.next().get();
     Timestamp dbTs = rs.getTimestamp(1).get();
     rs.close();
     TimeZone.setDefault(prevTz);
