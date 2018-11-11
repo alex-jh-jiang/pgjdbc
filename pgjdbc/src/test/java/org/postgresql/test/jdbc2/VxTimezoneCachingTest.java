@@ -32,9 +32,11 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
 
   /**
    * Test to check the internal cached timezone of a prepared statement is set/cleared as expected.
+   * @throws ExecutionException 
+   * @throws InterruptedException 
    */
   @Test
-  public void testPreparedStatementCachedTimezoneInstance() throws SQLException {
+  public void testPreparedStatementCachedTimezoneInstance() throws SQLException, InterruptedException, ExecutionException {
     Timestamp ts = new Timestamp(2016 - 1900, 0, 31, 0, 0, 0, 0);
     Date date = new Date(2016 - 1900, 0, 31);
     Time time = new Time(System.currentTimeMillis());
@@ -66,7 +68,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       assertEquals(
           "Cache was initialized, addBatch does not change that: must not be null",
           tz, getTimeZoneCache(pstmt));
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       assertEquals(
           "Cache reset by executeBatch(): must be null",
           null, getTimeZoneCache(pstmt));
@@ -90,7 +92,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setInt(1, 5);
       pstmt.setTimestamp(2, ts);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       pstmt.close();
       pstmt = con.prepareStatement("UPDATE testtz SET col2 = ? WHERE col1 = 1");
       assertEquals(
@@ -100,7 +102,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       assertEquals(
           "Cache initialized by setDate(xx): must not be null",
           tz, getTimeZoneCache(pstmt));
-      pstmt.execute();
+      pstmt.execute().get();
       assertEquals(
           "Cache reset by execute(): must be null",
           null, getTimeZoneCache(pstmt));
@@ -108,7 +110,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       assertEquals(
           "Cache initialized by setDate(xx): must not be null",
           tz, getTimeZoneCache(pstmt));
-      pstmt.executeUpdate();
+      pstmt.executeUpdate().get();
       assertEquals(
           "Cache reset by executeUpdate(): must be null",
           null, getTimeZoneCache(pstmt));
@@ -122,7 +124,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       assertEquals(
           "Cache initialized by setDate(xx): must not be null",
           tz, getTimeZoneCache(pstmt));
-      pstmt.executeQuery();
+      pstmt.executeQuery().get();
       assertEquals(
           "Cache reset by executeQuery(): must be null",
           null, getTimeZoneCache(pstmt));
@@ -152,7 +154,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       TimeZone.setDefault(tz1);
       pstmt = con.prepareStatement("INSERT INTO testtz VALUES(1, ?)");
       pstmt.setTimestamp(1, ts);
-      pstmt.executeUpdate();
+      pstmt.executeUpdate().get();
       checkTimestamp("Default is tz2, was saved as tz1, expecting tz1", stmt, ts, tz1);
       pstmt.close();
       pstmt = con.prepareStatement("UPDATE testtz SET col2 = ? WHERE col1 = ?");
@@ -160,12 +162,12 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       TimeZone.setDefault(tz2);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp("Default is tz2, but was saved as tz1, expecting tz1", stmt, ts, tz1);
       pstmt.setTimestamp(1, ts);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp("Default is tz2, was saved as tz2, expecting tz2", stmt, ts, tz2);
       pstmt.setTimestamp(1, ts);
       pstmt.setInt(2, 1);
@@ -174,14 +176,14 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setTimestamp(1, ts);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp(
           "Default is tz1, but was first saved as tz2, next save used tz2 cache, expecting tz2",
           stmt, ts, tz2);
       pstmt.setTimestamp(1, ts, c3);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp("Explicit use of tz3, expecting tz3", stmt, ts, tz3);
       pstmt.setTimestamp(1, ts, c3);
       pstmt.setInt(2, 1);
@@ -189,7 +191,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setTimestamp(1, ts, c4);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp("Last set explicitly used tz4, expecting tz4", stmt, ts, tz4);
       pstmt.setTimestamp(1, ts, c3);
       pstmt.setInt(2, 1);
@@ -200,7 +202,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setTimestamp(1, ts, c4);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp("Last set explicitly used tz4, expecting tz4", stmt, ts, tz4);
       pstmt.setTimestamp(1, ts, c3);
       pstmt.setInt(2, 1);
@@ -208,7 +210,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setTimestamp(1, ts);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp(
           "Default is tz1, was first saved as tz1, last save used tz1 cache, expecting tz1", stmt,
           ts, tz1);
@@ -221,7 +223,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       pstmt.setTimestamp(1, ts);
       pstmt.setInt(2, 1);
       pstmt.addBatch();
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
       checkTimestamp(
           "Default is tz1, was first saved as tz1, last save used tz1 cache, expecting tz1", stmt,
           ts, tz1);
@@ -320,7 +322,7 @@ public class VxTimezoneCachingTest extends VxBaseTest4 {
       rs.close();
       rs = stmt.executeQuery("SELECT col1, col2 FROM testtz").get();
       rs.next().get();
-      rs.getInt(1);
+      rs.getInt(1).get();
       TimeZone.setDefault(tz2);
       assertEquals(
           "Current TZ is tz2, empty cache to be initialized to tz2 => retrieve in tz2, timestamps cannot be equal",

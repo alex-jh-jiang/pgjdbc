@@ -201,7 +201,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
       pstmt = con.prepareStatement("INSERT INTO streamtable (bin,str) VALUES (?,?)");
       pstmt.setBinaryStream(1, is, length);
       pstmt.setString(2, "Other");
-      pstmt.executeUpdate();
+      pstmt.executeUpdate().get();
       fail("This isn't supposed to work.");
     } catch (SQLException sqle) {
       // don't need to rollback because we're in autocommit mode
@@ -222,7 +222,11 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         con.prepareStatement("INSERT INTO streamtable (bin,str) VALUES (?,?)");
     pstmt.setBinaryStream(1, bais, length);
     pstmt.setString(2, null);
-    pstmt.executeUpdate();
+    try {
+      pstmt.executeUpdate().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     pstmt.close();
   }
 
@@ -231,7 +235,11 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         con.prepareStatement("INSERT INTO streamtable (bin,str) VALUES (?,?)");
     pstmt.setBytes(1, null);
     pstmt.setAsciiStream(2, is, length);
-    pstmt.executeUpdate();
+    try {
+      pstmt.executeUpdate().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     pstmt.close();
   }
 
@@ -243,7 +251,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setString(1, str);
     pstmt.setString(2, str);
     pstmt.setString(3, str);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("SELECT ch, te, vc FROM texttable WHERE ch=? AND te=? AND vc=?");
@@ -260,34 +268,34 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   }
 
   @Test
-  public void testSetNull() throws SQLException {
+  public void testSetNull() throws SQLException, InterruptedException, ExecutionException {
     // valid: fully qualified type to setNull()
     VxPreparedStatement pstmt = con.prepareStatement("INSERT INTO texttable (te) VALUES (?)");
     pstmt.setNull(1, Types.VARCHAR);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     // valid: fully qualified type to setObject()
     pstmt.setObject(1, null, Types.VARCHAR);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     // valid: setObject() with partial type info and a typed "null object instance"
     org.postgresql.util.PGobject dummy = new org.postgresql.util.PGobject();
     dummy.setType("text");
     dummy.setValue(null);
     pstmt.setObject(1, dummy, Types.OTHER);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     // setObject() with no type info
     pstmt.setObject(1, null);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     // setObject() with insufficient type info
     pstmt.setObject(1, null, Types.OTHER);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     // setNull() with insufficient type info
     pstmt.setNull(1, Types.OTHER);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.close();
   }
@@ -325,7 +333,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     VxStatement stmt = con.createStatement();
 
     // Test with standard_conforming_strings turned off.
-    stmt.execute("SET standard_conforming_strings TO off");
+    stmt.execute("SET standard_conforming_strings TO off").get();
     for (int i = 0; i < testStrings.length; ++i) {
       VxPreparedStatement pstmt = con.prepareStatement("SELECT '" + testStrings[i] + "'");
       VxResultSet rs = pstmt.executeQuery().get();
@@ -337,7 +345,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
 
     // Test with standard_conforming_strings turned off...
     // ... using the escape string syntax (E'').
-    stmt.execute("SET standard_conforming_strings TO on");
+    stmt.execute("SET standard_conforming_strings TO on").get();
     for (int i = 0; i < testStrings.length; ++i) {
       VxPreparedStatement pstmt = con.prepareStatement("SELECT E'" + testStrings[i] + "'");
       VxResultSet rs = pstmt.executeQuery().get();
@@ -356,7 +364,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
       pstmt.close();
     }
 
-    stmt.execute("SET standard_conforming_strings TO " + (oldStdStrings ? "on" : "off"));
+    stmt.execute("SET standard_conforming_strings TO " + (oldStdStrings ? "on" : "off")).get();
     stmt.close();
   }
 
@@ -373,11 +381,19 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     for (String testString : testStrings) {
       VxPreparedStatement pstmt =
           con.prepareStatement("CREATE TABLE \"" + testString + "\" (i integer)");
-      pstmt.executeUpdate();
+      try {
+        pstmt.executeUpdate().get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       pstmt.close();
 
       pstmt = con.prepareStatement("DROP TABLE \"" + testString + "\"");
-      pstmt.executeUpdate();
+      try {
+        pstmt.executeUpdate().get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       pstmt.close();
     }
   }
@@ -429,17 +445,35 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     // dollar-quotes are supported in the backend since version 8.0
     VxPreparedStatement st;
 
-    con.createStatement().execute("CREATE TEMP TABLE a$b$c(a varchar, b varchar)");
+    try {
+      con.createStatement().execute("CREATE TEMP TABLE a$b$c(a varchar, b varchar)").get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     st = con.prepareStatement("INSERT INTO a$b$c (a, b) VALUES (?, ?)");
     st.setString(1, "a");
     st.setString(2, "b");
-    st.executeUpdate();
+    try {
+      st.executeUpdate().get();
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO Auto-generated catch block
+      throw new SQLException(e);
+    }
     st.close();
 
-    con.createStatement().execute("CREATE TEMP TABLE e$f$g(h varchar, e$f$g varchar) ");
+    try {
+      con.createStatement().execute("CREATE TEMP TABLE e$f$g(h varchar, e$f$g varchar) ").get();
+    } catch (InterruptedException | ExecutionException e) {
+      // TODO Auto-generated catch block
+      throw new SQLException(e);
+    }
     st = con.prepareStatement("UPDATE e$f$g SET h = ? || e$f$g");
     st.setString(1, "a");
-    st.executeUpdate();
+    try {
+      st.executeUpdate().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     st.close();
   }
 
@@ -488,14 +522,14 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testDouble() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE TEMP TABLE double_tab (max_double float, min_double float, null_value float)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("insert into double_tab values (?,?,?)");
     pstmt.setDouble(1, 1.0E125);
     pstmt.setDouble(2, 1.0E-130);
     pstmt.setNull(3, Types.DOUBLE);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from double_tab");
@@ -565,7 +599,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(7, "On", Types.BIT);
     pstmt.setObject(8, '1', Types.BIT);
     pstmt.setObject(8, "1", Types.BIT);
-    assertEquals("one row inserted, true values", 1, pstmt.executeUpdate());
+    assertEquals("one row inserted, true values", 1, (Object)pstmt.executeUpdate().get());
     // Test FALSE values
     pstmt.setBoolean(1, false);
     pstmt.setObject(1, Boolean.FALSE);
@@ -581,7 +615,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(7, "Off", Types.BOOLEAN);
     pstmt.setObject(8, "0", Types.BOOLEAN);
     pstmt.setObject(8, '0', Types.BOOLEAN);
-    assertEquals("one row inserted, false values", 1, pstmt.executeUpdate());
+    assertEquals("one row inserted, false values", 1, (Object)pstmt.executeUpdate().get());
     // Test weird values
     pstmt.setObject(1, (byte) 0, Types.BOOLEAN);
     pstmt.setObject(2, BigDecimal.ONE, Types.BOOLEAN);
@@ -625,7 +659,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.close();
 
     pstmt = con.prepareStatement("TRUNCATE TABLE bool_tab");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
   }
 
@@ -717,7 +751,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetFloatInteger() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE float_tab (max_val float8, min_val float, null_val float8)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     Integer maxInteger = new Integer(2147483647);
@@ -730,7 +764,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxInteger, Types.FLOAT);
     pstmt.setObject(2, minInteger, Types.FLOAT);
     pstmt.setNull(3, Types.FLOAT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from float_tab");
@@ -752,7 +786,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetFloatString() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE float_tab (max_val float8, min_val float8, null_val float8)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     String maxStringFloat = "1.0E37";
@@ -764,11 +798,11 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxStringFloat, Types.FLOAT);
     pstmt.setObject(2, minStringFloat, Types.FLOAT);
     pstmt.setNull(3, Types.FLOAT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.setObject(1, "1.0", Types.FLOAT);
     pstmt.setObject(2, "0.0", Types.FLOAT);
     pstmt.setNull(3, Types.FLOAT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from float_tab");
@@ -795,7 +829,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetFloatBigDecimal() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE float_tab (max_val float8, min_val float8, null_val float8)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     BigDecimal maxBigDecimalFloat = new BigDecimal("1.0E37");
@@ -807,7 +841,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxBigDecimalFloat, Types.FLOAT);
     pstmt.setObject(2, minBigDecimalFloat, Types.FLOAT);
     pstmt.setNull(3, Types.FLOAT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from float_tab");
@@ -829,7 +863,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetTinyIntFloat() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con
         .prepareStatement("CREATE temp TABLE tiny_int (max_val int4, min_val int4, null_val int4)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     Integer maxInt = new Integer(127);
@@ -841,7 +875,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxIntFloat, Types.TINYINT);
     pstmt.setObject(2, minIntFloat, Types.TINYINT);
     pstmt.setNull(3, Types.TINYINT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from tiny_int");
@@ -885,7 +919,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetSmallIntFloat() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE small_int (max_val int4, min_val int4, null_val int4)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     Integer maxInt = new Integer(32767);
@@ -897,7 +931,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxIntFloat, Types.SMALLINT);
     pstmt.setObject(2, minIntFloat, Types.SMALLINT);
     pstmt.setNull(3, Types.TINYINT);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from small_int");
@@ -918,7 +952,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetIntFloat() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con
         .prepareStatement("CREATE temp TABLE int_TAB (max_val int4, min_val int4, null_val int4)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     Integer maxInt = new Integer(1000);
@@ -930,7 +964,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, maxIntFloat, Types.INTEGER);
     pstmt.setObject(2, minIntFloat, Types.INTEGER);
     pstmt.setNull(3, Types.INTEGER);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from int_tab");
@@ -952,7 +986,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetBooleanDouble() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE double_tab (max_val float, min_val float, null_val float)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     Double dBooleanTrue = new Double(1);
@@ -962,7 +996,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, Boolean.TRUE, Types.DOUBLE);
     pstmt.setObject(2, Boolean.FALSE, Types.DOUBLE);
     pstmt.setNull(3, Types.DOUBLE);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from double_tab");
@@ -984,7 +1018,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetBooleanNumeric() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE numeric_tab (max_val numeric(30,15), min_val numeric(30,15), null_val numeric(30,15))");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     BigDecimal dBooleanTrue = new BigDecimal(1);
@@ -994,7 +1028,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, Boolean.TRUE, Types.NUMERIC, 2);
     pstmt.setObject(2, Boolean.FALSE, Types.NUMERIC, 2);
     pstmt.setNull(3, Types.DOUBLE);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from numeric_tab");
@@ -1016,7 +1050,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   public void testSetBooleanDecimal() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement(
         "CREATE temp TABLE DECIMAL_TAB (max_val numeric(30,15), min_val numeric(30,15), null_val numeric(30,15))");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     BigDecimal dBooleanTrue = new BigDecimal(1);
@@ -1026,7 +1060,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     pstmt.setObject(1, Boolean.TRUE, Types.DECIMAL, 2);
     pstmt.setObject(2, Boolean.FALSE, Types.DECIMAL, 2);
     pstmt.setNull(3, Types.DOUBLE);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select * from DECIMAL_TAB");
@@ -1061,7 +1095,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     Double vd = Double.valueOf(vs);
     pstmt.setObject(4, vd, Types.NUMERIC);
 
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     pstmt = con.prepareStatement("select n1,n2,n3,n4 from decimal_scale");
@@ -1100,7 +1134,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
       psinsert.setObject(3, vf, Types.NUMERIC, s);
       psinsert.setObject(4, vd, Types.NUMERIC, s);
 
-      psinsert.executeUpdate();
+      psinsert.executeUpdate().get();
 
       VxResultSet rs = psselect.executeQuery().get();
       assertTrue(rs.next().get());
@@ -1118,7 +1152,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
           "expected numeric set via Double" + vd + " with scale " + s + " stored as " + vscaled,
           vscaled.compareTo(rs.getBigDecimal(4).get()) == 0);
       rs.close();
-      pstruncate.executeUpdate();
+      pstruncate.executeUpdate().get();
     }
 
     psinsert.close();
@@ -1134,7 +1168,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     VxPreparedStatement psselect = con.prepareStatement("select n1 from number_fallback");
 
     psinsert.setObject(1, new BigDecimal("733"));
-    psinsert.execute();
+    psinsert.execute().get();
 
     VxResultSet rs = psselect.executeQuery().get();
     assertTrue(rs.next().get());
@@ -1154,7 +1188,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     VxPreparedStatement psselect = con.prepareStatement("select n1 from number_fallback");
 
     psinsert.setObject(1, new BigInteger("733"));
-    psinsert.execute();
+    psinsert.execute().get();
 
     VxResultSet rs = psselect.executeQuery().get();
     assertTrue(rs.next().get());
@@ -1174,7 +1208,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     VxPreparedStatement psselect = con.prepareStatement("select n1 from number_fallback");
 
     psinsert.setObject(1, new AtomicLong(733));
-    psinsert.execute();
+    psinsert.execute().get();
 
     VxResultSet rs = psselect.executeQuery().get();
     assertTrue(rs.next().get());
@@ -1187,12 +1221,12 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
   }
 
   @Test
-  public void testUnknownSetObject() throws SQLException {
+  public void testUnknownSetObject() throws SQLException, InterruptedException, ExecutionException {
     VxPreparedStatement pstmt = con.prepareStatement("INSERT INTO intervaltable(i) VALUES (?)");
 
     pstmt.setString(1, "1 week");
     try {
-      pstmt.executeUpdate();
+      pstmt.executeUpdate().get();
       assertTrue("When using extended protocol, interval vs character varying type mismatch error is expected",
           preferQueryMode == PreferQueryMode.SIMPLE);
     } catch (SQLException sqle) {
@@ -1200,7 +1234,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
     }
 
     pstmt.setObject(1, "1 week", Types.OTHER);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
   }
 
@@ -1242,7 +1276,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         preferQueryMode != PreferQueryMode.SIMPLE);
 
     VxPreparedStatement pstmt = con.prepareStatement("CREATE temp TABLE batch_tab_threshold5 (id bigint, val bigint)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     // When using a prepareThreshold of 5, a batch update should use server-side prepare
@@ -1254,7 +1288,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         pstmt.setLong(2, i);
         pstmt.addBatch();
       }
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
     }
     pstmt.close();
     assertTrue("prepareThreshold=5, so the statement should be server-prepared",
@@ -1270,7 +1304,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         preferQueryMode != PreferQueryMode.SIMPLE);
 
     VxPreparedStatement pstmt = con.prepareStatement("CREATE temp TABLE batch_tab_threshold0 (id bigint, val bigint)");
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     pstmt.close();
 
     // When using a prepareThreshold of 0, a batch update should not use server-side prepare
@@ -1282,7 +1316,7 @@ public class VxPreparedStatementTest extends VxBaseTest4 {
         pstmt.setLong(2, i);
         pstmt.addBatch();
       }
-      pstmt.executeBatch();
+      pstmt.executeBatch().get();
     }
     pstmt.close();
 

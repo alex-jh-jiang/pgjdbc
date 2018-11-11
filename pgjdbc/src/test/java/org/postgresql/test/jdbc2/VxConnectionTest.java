@@ -123,30 +123,30 @@ public class VxConnectionTest {
     VxResultSet rs;
 
     // Turn it off
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
     assertTrue(!con.getAutoCommit());
 
     // Turn it back on
-    con.setAutoCommit(true);
+    con.setAutoCommit(true).get();
     assertTrue(con.getAutoCommit());
 
     // Now test commit
     st = con.createStatement();
-    st.executeUpdate("insert into test_a (imagename,image,id) values ('comttest',1234,5678)");
+    st.executeUpdate("insert into test_a (imagename,image,id) values ('comttest',1234,5678)").get();
 
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
 
     // Now update image to 9876 and commit
-    st.executeUpdate("update test_a set image=9876 where id=5678");
-    con.commit();
+    st.executeUpdate("update test_a set image=9876 where id=5678").get();
+    con.commit().get();
     rs = st.executeQuery("select image from test_a where id=5678").get();
     assertTrue(rs.next().get());
     assertEquals(9876, (Object)rs.getInt(1).get());
     rs.close();
 
     // Now try to change it but rollback
-    st.executeUpdate("update test_a set image=1111 where id=5678");
-    con.rollback();
+    st.executeUpdate("update test_a set image=1111 where id=5678").get();
+    con.rollback().get();
     rs = st.executeQuery("select image from test_a where id=5678").get();
     assertTrue(rs.next().get());
     assertEquals(9876, (Object)rs.getInt(1).get()); // Should not change!
@@ -233,35 +233,35 @@ public class VxConnectionTest {
     assertEquals(java.sql.Connection.TRANSACTION_SERIALIZABLE, con.getTransactionIsolation());
     con.setAutoCommit(false);
     assertEquals(java.sql.Connection.TRANSACTION_SERIALIZABLE, con.getTransactionIsolation());
-    con.setAutoCommit(true);
+    con.setAutoCommit(true).get();
     assertEquals(java.sql.Connection.TRANSACTION_SERIALIZABLE, con.getTransactionIsolation());
     con.setTransactionIsolation(java.sql.Connection.TRANSACTION_READ_COMMITTED);
     assertEquals(java.sql.Connection.TRANSACTION_READ_COMMITTED, con.getTransactionIsolation());
     con.setAutoCommit(false);
     assertEquals(java.sql.Connection.TRANSACTION_READ_COMMITTED, con.getTransactionIsolation());
-    con.commit();
+    con.commit().get();
 
     // Test that getTransactionIsolation() does not actually start a new txn.
     // Shouldn't start a new transaction.
-    con.getTransactionIsolation();
+    con.getTransactionIsolation().get();
     // Should be ok -- we're not in a transaction.
-    con.setTransactionIsolation(java.sql.Connection.TRANSACTION_SERIALIZABLE);
+    con.setTransactionIsolation(java.sql.Connection.TRANSACTION_SERIALIZABLE).get();
     // Should still be ok.
-    con.setTransactionIsolation(java.sql.Connection.TRANSACTION_READ_COMMITTED);
+    con.setTransactionIsolation(java.sql.Connection.TRANSACTION_READ_COMMITTED).get();
 
     // Test that we can't change isolation mid-transaction
     VxStatement stmt = con.createStatement();
-    stmt.executeQuery("SELECT 1"); // Start transaction.
+    stmt.executeQuery("SELECT 1").get(); // Start transaction.
     stmt.close();
 
     try {
-      con.setTransactionIsolation(java.sql.Connection.TRANSACTION_SERIALIZABLE);
+      con.setTransactionIsolation(java.sql.Connection.TRANSACTION_SERIALIZABLE).get();
       fail("Expected an exception when changing transaction isolation mid-transaction");
     } catch (SQLException e) {
       // Ok.
     }
 
-    con.rollback();
+    con.rollback().get();
     VxTestUtil.closeDB(con);
   }
 

@@ -185,7 +185,7 @@ public class VxPGTimestampTest {
     VxPreparedStatement pstmt1 = con.prepareStatement(sql);
     pstmt1.setString(1, sdf.format(timestamp));
     pstmt1.setString(2, sdf.format(timestamp));
-    assertEquals(1, pstmt1.executeUpdate());
+    assertEquals(1, (Object)pstmt1.executeUpdate().get());
 
     // Insert the timestamps as PGTimestamp objects.
     VxPreparedStatement pstmt2 = con.prepareStatement("INSERT INTO " + TEST_TABLE + " VALUES (?, ?)");
@@ -198,7 +198,7 @@ public class VxPGTimestampTest {
       pstmt2.setTimestamp(2, timestamp);
     }
 
-    assertEquals(1, pstmt2.executeUpdate());
+    assertEquals(1, (Object)pstmt2.executeUpdate().get());
 
     // Query the values back out.
     VxStatement stmt = con.createStatement();
@@ -227,7 +227,7 @@ public class VxPGTimestampTest {
     assertEquals(tz1, tz2);
 
     // Clean up.
-    assertEquals(2, stmt.executeUpdate("DELETE FROM " + TEST_TABLE));
+    assertEquals(2, (Object)stmt.executeUpdate("DELETE FROM " + TEST_TABLE).get());
     stmt.close();
     pstmt2.close();
     pstmt1.close();

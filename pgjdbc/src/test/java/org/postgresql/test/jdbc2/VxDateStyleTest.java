@@ -16,6 +16,7 @@ import org.junit.runners.Parameterized;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(Parameterized.class)
 public class VxDateStyleTest extends VxBaseTest4 {
@@ -41,7 +42,12 @@ public class VxDateStyleTest extends VxBaseTest4 {
   public void conenct() throws SQLException {
     VxStatement st = con.createStatement();
     try {
-      st.execute("set DateStyle='" + dateStyle + "'");
+      try {
+        st.execute("set DateStyle='" + dateStyle + "'").get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        throw new SQLException(e);
+      }
       if (!shouldPass) {
         Assert.fail("Set DateStyle=" + dateStyle + " should not be allowed");
       }

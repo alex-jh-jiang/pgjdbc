@@ -142,7 +142,7 @@ public class VxResultSetTest extends VxBaseTest4 {
       VxTestUtil.dropTable(con, "testpgobject");
     } catch (InterruptedException | ExecutionException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new SQLException(e);
     }
    
     super.tearDown();
@@ -815,7 +815,7 @@ public class VxResultSetTest extends VxBaseTest4 {
     pgobj.setType("date");
     pgobj.setValue("2014-12-23");
     rs.updateObject("d", pgobj);
-    rs.updateRow();
+    rs.updateRow().get();
     rs.close();
 
     VxResultSet rs1 = stmt.executeQuery("select * from testpgobject where id = 1").get();

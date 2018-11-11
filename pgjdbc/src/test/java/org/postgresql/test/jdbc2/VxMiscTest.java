@@ -76,11 +76,11 @@ public class VxMiscTest {
     try {
 
       // transaction mode
-      con.setAutoCommit(false);
+      con.setAutoCommit(false).get();
       VxStatement stmt = con.createStatement();
       stmt.execute("select 1/0").get();
       fail("Should not execute this, as a SQLException s/b thrown");
-      con.commit();
+      con.commit().get();
     } catch (SQLException ex) {
       // Verify that the SQLException is serializable.
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -89,7 +89,7 @@ public class VxMiscTest {
       oos.close();
     }
 
-    con.commit();
+    con.commit().get();
     con.close();
   }
 
@@ -97,7 +97,7 @@ public class VxMiscTest {
   public void testWarning() throws Exception {
     VxConnection con = VxTestUtil.openDB().get();
     VxStatement stmt = con.createStatement();
-    stmt.execute("CREATE TEMP TABLE t(a int primary key)");
+    stmt.execute("CREATE TEMP TABLE t(a int primary key)").get();
     SQLWarning warning = stmt.getWarnings();
     // We should get a warning about primary key index creation
     // it's possible we won't depending on the server's
@@ -124,10 +124,10 @@ public class VxMiscTest {
     VxTestUtil.createTable(con, "test_lock", "name text");
     VxStatement st = con.createStatement();
     VxStatement st2 = con2.createStatement();
-    con.setAutoCommit(false);
-    st.execute("lock table test_lock");
-    st2.executeUpdate("insert into test_lock ( name ) values ('hello')");
-    con.commit();
+    con.setAutoCommit(false).get();
+    st.execute("lock table test_lock").get();
+    st2.executeUpdate("insert into test_lock ( name ) values ('hello')").get();
+    con.commit().get();
     VxTestUtil.dropTable(con, "test_lock");
     con.close();
     con2.close();

@@ -119,7 +119,7 @@ public class VxTimezoneTest {
   @Test
   public void testGetTimestamp() throws Exception {
     con.createStatement().executeUpdate(
-        "INSERT INTO testtimezone(tstz,ts,t,tz,d) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '15:00:00', '15:00:00 +0300', '2005-01-01')");
+        "INSERT INTO testtimezone(tstz,ts,t,tz,d) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '15:00:00', '15:00:00 +0300', '2005-01-01')").get();
 
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
       String format = i == 0 ? ", text" : ", binary";
@@ -217,7 +217,7 @@ public class VxTimezoneTest {
   @Test
   public void testGetDate() throws Exception {
     con.createStatement().executeUpdate(
-        "INSERT INTO testtimezone(tstz,ts,d) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '2005-01-01')");
+        "INSERT INTO testtimezone(tstz,ts,d) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '2005-01-01')").get();
 
     VxPreparedStatement ps = con.prepareStatement("SELECT tstz,ts,d from testtimezone");
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
@@ -273,7 +273,7 @@ public class VxTimezoneTest {
   @Test
   public void testGetTime() throws Exception {
     con.createStatement().executeUpdate(
-        "INSERT INTO testtimezone(tstz,ts,t,tz) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '15:00:00', '15:00:00 +0300')");
+        "INSERT INTO testtimezone(tstz,ts,t,tz) VALUES('2005-01-01 15:00:00 +0300', '2005-01-01 15:00:00', '15:00:00', '15:00:00 +0300')").get();
 
     VxPreparedStatement ps = con.prepareStatement("SELECT tstz,ts,t,tz from testtimezone");
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
@@ -350,7 +350,7 @@ public class VxTimezoneTest {
   public void testSetTimestampOnTime() throws Exception {
     // Pre-7.4 servers cannot convert timestamps with timezones to times.
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
-      con.createStatement().execute("delete from testtimezone");
+      con.createStatement().execute("delete from testtimezone").get();
       VxPreparedStatement insertTimestamp =
           con.prepareStatement("INSERT INTO testtimezone(seq,t) VALUES (?,?)");
       int seq = 1;
@@ -361,27 +361,27 @@ public class VxTimezoneTest {
       // +0100 (JVM default)
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTimestamp(2, instant); // 13:00:00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // UTC
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTimestamp(2, instant, cUTC); // 12:00:00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +0300
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTimestamp(2, instant, cGMT03); // 15:00:00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // -0500
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTimestamp(2, instant, cGMT05); // 07:00:00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +1300
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTimestamp(2, instant, cGMT13); // 01:00:00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       insertTimestamp.close();
 
@@ -423,7 +423,7 @@ public class VxTimezoneTest {
   @Test
   public void testSetTimestamp() throws Exception {
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
-      con.createStatement().execute("delete from testtimezone");
+      con.createStatement().execute("delete from testtimezone").get();
       VxPreparedStatement insertTimestamp =
           con.prepareStatement("INSERT INTO testtimezone(seq,tstz,ts,tz,d) VALUES (?,?,?,?,?)");
       int seq = 1;
@@ -447,7 +447,7 @@ public class VxTimezoneTest {
       insertTimestamp.setTimestamp(3, instant); // 2005-01-01 13:00:00
       insertTimestamp.setTimestamp(4, instant); // 13:00:00 +0100
       insertTimestamp.setTimestamp(5, instant); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // UTC
       insertTimestamp.setInt(1, seq++);
@@ -455,7 +455,7 @@ public class VxTimezoneTest {
       insertTimestamp.setTimestamp(3, instant, cUTC); // 2005-01-01 12:00:00
       insertTimestamp.setTimestamp(4, instant, cUTC); // 12:00:00 +0000
       insertTimestamp.setTimestamp(5, instant, cUTC); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +0300
       insertTimestamp.setInt(1, seq++);
@@ -463,7 +463,7 @@ public class VxTimezoneTest {
       insertTimestamp.setTimestamp(3, instant, cGMT03); // 2005-01-01 15:00:00
       insertTimestamp.setTimestamp(4, instant, cGMT03); // 15:00:00 +0300
       insertTimestamp.setTimestamp(5, instant, cGMT03); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // -0500
       insertTimestamp.setInt(1, seq++);
@@ -471,7 +471,7 @@ public class VxTimezoneTest {
       insertTimestamp.setTimestamp(3, instant, cGMT05); // 2005-01-01 07:00:00
       insertTimestamp.setTimestamp(4, instant, cGMT05); // 07:00:00 -0500
       insertTimestamp.setTimestamp(5, instant, cGMT05); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +1300
       insertTimestamp.setInt(1, seq++);
@@ -479,7 +479,7 @@ public class VxTimezoneTest {
       insertTimestamp.setTimestamp(3, instant, cGMT13); // 2005-01-02 01:00:00
       insertTimestamp.setTimestamp(4, instant, cGMT13); // 01:00:00 +1300
       insertTimestamp.setTimestamp(5, instant, cGMT13); // 2005-01-02
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       insertTimestamp.close();
 
@@ -550,7 +550,7 @@ public class VxTimezoneTest {
   @Test
   public void testSetDate() throws Exception {
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
-      con.createStatement().execute("delete from testtimezone");
+      con.createStatement().execute("delete from testtimezone").get();
       VxPreparedStatement insertTimestamp =
           con.prepareStatement("INSERT INTO testtimezone(seq,tstz,ts,d) VALUES (?,?,?,?)");
 
@@ -568,7 +568,7 @@ public class VxTimezoneTest {
       insertTimestamp.setDate(2, dJVM); // 2005-01-01 00:00:00 +0100
       insertTimestamp.setDate(3, dJVM); // 2005-01-01 00:00:00
       insertTimestamp.setDate(4, dJVM); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // UTC
       dUTC = new Date(1104537600000L); // 2005-01-01 00:00:00 +0000
@@ -576,7 +576,7 @@ public class VxTimezoneTest {
       insertTimestamp.setDate(2, dUTC, cUTC); // 2005-01-01 00:00:00 +0000
       insertTimestamp.setDate(3, dUTC, cUTC); // 2005-01-01 00:00:00
       insertTimestamp.setDate(4, dUTC, cUTC); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +0300
       dGMT03 = new Date(1104526800000L); // 2005-01-01 00:00:00 +0300
@@ -584,7 +584,7 @@ public class VxTimezoneTest {
       insertTimestamp.setDate(2, dGMT03, cGMT03); // 2005-01-01 00:00:00 +0300
       insertTimestamp.setDate(3, dGMT03, cGMT03); // 2005-01-01 00:00:00
       insertTimestamp.setDate(4, dGMT03, cGMT03); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // -0500
       dGMT05 = new Date(1104555600000L); // 2005-01-01 00:00:00 -0500
@@ -592,7 +592,7 @@ public class VxTimezoneTest {
       insertTimestamp.setDate(2, dGMT05, cGMT05); // 2005-01-01 00:00:00 -0500
       insertTimestamp.setDate(3, dGMT05, cGMT05); // 2005-01-01 00:00:00
       insertTimestamp.setDate(4, dGMT05, cGMT05); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +1300
       dGMT13 = new Date(1104490800000L); // 2005-01-01 00:00:00 +1300
@@ -600,7 +600,7 @@ public class VxTimezoneTest {
       insertTimestamp.setDate(2, dGMT13, cGMT13); // 2005-01-01 00:00:00 +1300
       insertTimestamp.setDate(3, dGMT13, cGMT13); // 2005-01-01 00:00:00
       insertTimestamp.setDate(4, dGMT13, cGMT13); // 2005-01-01
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       insertTimestamp.close();
 
@@ -660,7 +660,7 @@ public class VxTimezoneTest {
   @Test
   public void testSetTime() throws Exception {
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
-      con.createStatement().execute("delete from testtimezone");
+      con.createStatement().execute("delete from testtimezone").get();
       VxPreparedStatement insertTimestamp =
           con.prepareStatement("INSERT INTO testtimezone(seq,t,tz) VALUES (?,?,?)");
 
@@ -677,35 +677,35 @@ public class VxTimezoneTest {
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTime(2, tJVM); // 15:00:00
       insertTimestamp.setTime(3, tJVM); // 15:00:00+03
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // UTC
       tUTC = new Time(54000000L); // 1970-01-01 15:00:00 +0000
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTime(2, tUTC, cUTC); // 15:00:00
       insertTimestamp.setTime(3, tUTC, cUTC); // 15:00:00+00
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +0300
       tGMT03 = new Time(43200000L); // 1970-01-01 15:00:00 +0300
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTime(2, tGMT03, cGMT03); // 15:00:00
       insertTimestamp.setTime(3, tGMT03, cGMT03); // 15:00:00+03
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // -0500
       tGMT05 = new Time(72000000L); // 1970-01-01 15:00:00 -0500
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTime(2, tGMT05, cGMT05); // 15:00:00
       insertTimestamp.setTime(3, tGMT05, cGMT05); // 15:00:00-05
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       // +1300
       tGMT13 = new Time(7200000L); // 1970-01-01 15:00:00 +1300
       insertTimestamp.setInt(1, seq++);
       insertTimestamp.setTime(2, tGMT13, cGMT13); // 15:00:00
       insertTimestamp.setTime(3, tGMT13, cGMT13); // 15:00:00+13
-      insertTimestamp.executeUpdate();
+      insertTimestamp.executeUpdate().get();
 
       insertTimestamp.close();
 
@@ -758,7 +758,7 @@ public class VxTimezoneTest {
   @Test
   public void testHalfHourTimezone() throws Exception {
     VxStatement stmt = con.createStatement();
-    stmt.execute("SET TimeZone = 'GMT+3:30'");
+    stmt.execute("SET TimeZone = 'GMT+3:30'").get();
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
       VxPreparedStatement ps = con.prepareStatement("SELECT '1969-12-31 20:30:00'::timestamptz");
       VxResultSet rs = ps.executeQuery().get();
@@ -771,7 +771,7 @@ public class VxTimezoneTest {
   @Test
   public void testTimezoneWithSeconds() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("SET TimeZone = 'Europe/Paris'");
+    stmt.execute("SET TimeZone = 'Europe/Paris'").get();
     for (int i = 0; i < PREPARE_THRESHOLD; i++) {
       VxPreparedStatement ps = con.prepareStatement("SELECT '1920-01-01'::timestamptz");
       VxResultSet rs = ps.executeQuery().get();
@@ -844,7 +844,7 @@ public class VxTimezoneTest {
         "2000-10-29 03:00:00", "2000-10-29 03:00:01", "2000-10-29 03:59:59", "2000-10-29 04:00:00",
         "2000-10-29 04:00:01");
 
-    con.createStatement().execute("delete from testtimezone");
+    con.createStatement().execute("delete from testtimezone").get();
     VxStatement stmt = con.createStatement();
 
     for (int i = 0; i < datesToTest.size(); i++) {
@@ -852,7 +852,7 @@ public class VxTimezoneTest {
           "insert into testtimezone (ts, d, seq) values ("
               + "'" + datesToTest.get(i) + "'"
               + ", '" + setTimeTo00_00_00(datesToTest.get(i)) + "'"
-              + ", " + i + ")");
+              + ", " + i + ")").get();
     }
 
     // Different timezone test should have different sql text, so we test both text and binary modes

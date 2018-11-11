@@ -105,7 +105,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -135,7 +135,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -165,7 +165,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -198,7 +198,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -238,7 +238,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -271,7 +271,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -313,7 +313,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -352,7 +352,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =
@@ -388,7 +388,7 @@ public class VxLogicalReplicationStatusTest {
     LogSequenceNumber startLSN = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into test_logic_table(name) values('previous changes')");
+    st.execute("insert into test_logic_table(name) values('previous changes')").get();
     st.close();
 
     PGReplicationStream stream =

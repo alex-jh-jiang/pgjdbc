@@ -116,7 +116,7 @@ public class VxDatabaseEncodingTest {
 
       insert.setInt(1, i);
       insert.setString(2, testString);
-      assertEquals(1, insert.executeUpdate());
+      assertEquals(1, (Object)insert.executeUpdate().get());
     }
 
     if (testHighUnicode) {
@@ -135,11 +135,11 @@ public class VxDatabaseEncodingTest {
 
         // System.err.println("Inserting: " + dumpString(testString));
 
-        assertEquals(1, insert.executeUpdate());
+        assertEquals(1, (Object)insert.executeUpdate().get());
       }
     }
 
-    con.commit();
+    con.commit().get();
 
     // Check data.
     stmt.setFetchSize(1);

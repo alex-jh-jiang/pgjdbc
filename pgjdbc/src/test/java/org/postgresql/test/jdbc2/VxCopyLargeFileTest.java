@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author amozhenin on 30.09.2015.
@@ -65,7 +66,11 @@ public class VxCopyLargeFileTest {
   private void insertData(VxPreparedStatement stmt, String textId, String name) throws SQLException {
     stmt.setString(1, textId);
     stmt.setString(2, name);
-    stmt.executeUpdate();
+    try {
+      stmt.executeUpdate().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
   }
 
   @After
@@ -106,7 +111,7 @@ public class VxCopyLargeFileTest {
     VxCallableStatement stmt = null;
     try {
       stmt = conn.prepareCall("TRUNCATE pgjdbc_issue366_test_data;");
-      stmt.execute();
+      stmt.execute().get();
     } finally {
       if (stmt != null) {
         stmt.close();

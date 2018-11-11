@@ -72,7 +72,7 @@ public class VxGeometricTest extends VxBaseTest4 {
     VxPreparedStatement insert =
         con.prepareStatement("INSERT INTO testgeometric(" + column + ") VALUES (?)");
     insert.setObject(1, obj);
-    insert.executeUpdate();
+    insert.executeUpdate().get();
     insert.close();
 
     VxStatement stmt = con.createStatement();

@@ -39,41 +39,41 @@ public class VxCallableStmtTest extends VxBaseTest4 {
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getString (varchar) "
         + "RETURNS varchar AS ' DECLARE inString alias for $1; begin "
-        + "return ''bob''; end; ' LANGUAGE plpgsql;");
+        + "return ''bob''; end; ' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getDouble (float) "
         + "RETURNS float AS ' DECLARE inString alias for $1; begin "
-        + "return 42.42; end; ' LANGUAGE plpgsql;");
+        + "return 42.42; end; ' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getVoid (float) "
         + "RETURNS void AS ' DECLARE inString alias for $1; begin "
-        + " return; end; ' LANGUAGE plpgsql;");
+        + " return; end; ' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getInt (int) RETURNS int "
         + " AS 'DECLARE inString alias for $1; begin "
-        + "return 42; end;' LANGUAGE plpgsql;");
+        + "return 42; end;' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getShort (int2) RETURNS int2 "
         + " AS 'DECLARE inString alias for $1; begin "
-        + "return 42; end;' LANGUAGE plpgsql;");
+        + "return 42; end;' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getNumeric (numeric) "
         + "RETURNS numeric AS ' DECLARE inString alias for $1; "
-        + "begin return 42; end; ' LANGUAGE plpgsql;");
+        + "begin return 42; end; ' LANGUAGE plpgsql;").get();
 
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getNumericWithoutArg() "
         + "RETURNS numeric AS '  "
-        + "begin return 42; end; ' LANGUAGE plpgsql;");
+        + "begin return 42; end; ' LANGUAGE plpgsql;").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__getarray() RETURNS int[] as "
-        + "'SELECT ''{1,2}''::int[];' LANGUAGE sql");
+        + "'SELECT ''{1,2}''::int[];' LANGUAGE sql").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__raisenotice() RETURNS int as "
-        + "'BEGIN RAISE NOTICE ''hello'';  RAISE NOTICE ''goodbye''; RETURN 1; END;' LANGUAGE plpgsql");
+        + "'BEGIN RAISE NOTICE ''hello'';  RAISE NOTICE ''goodbye''; RETURN 1; END;' LANGUAGE plpgsql").get();
     stmt.execute(
         "CREATE OR REPLACE FUNCTION testspg__insertInt(int) RETURNS int as "
-        + "'BEGIN INSERT INTO int_table(id) VALUES ($1); RETURN 1; END;' LANGUAGE plpgsql");
+        + "'BEGIN INSERT INTO int_table(id) VALUES ($1); RETURN 1; END;' LANGUAGE plpgsql").get();
     stmt.close();
   }
 
@@ -162,7 +162,7 @@ public class VxCallableStmtTest extends VxBaseTest4 {
     VxCallableStatement call = con.prepareCall(func + pkgName + "getInt (?) }");
     call.setInt(2, 4);
     call.registerOutParameter(1, Types.INTEGER);
-    call.execute();
+    call.execute().get();
     assertEquals(42, call.getInt(1));
   }
 
@@ -225,7 +225,7 @@ public class VxCallableStmtTest extends VxBaseTest4 {
   public void testRaiseNotice() throws SQLException, InterruptedException, ExecutionException {
     assumeCallableStatementsSupported();
     VxStatement statement = con.createStatement();
-    statement.execute("SET SESSION client_min_messages = 'NOTICE'");
+    statement.execute("SET SESSION client_min_messages = 'NOTICE'").get();
     VxCallableStatement call = con.prepareCall(func + pkgName + "raisenotice()}");
     call.registerOutParameter(1, Types.INTEGER);
     call.execute().get();
@@ -267,7 +267,11 @@ public class VxCallableStmtTest extends VxBaseTest4 {
   @Test
   public void testFetchWithNoResults() throws SQLException {
     VxCallableStatement cs = con.prepareCall("{call now()}");
-    cs.execute();
+    try {
+      cs.execute().get();
+    } catch (InterruptedException | ExecutionException e1) {
+      throw new SQLException(e1);
+    }
     try {
       cs.getObject(1);
       fail("expected exception");
@@ -301,7 +305,7 @@ public class VxCallableStmtTest extends VxBaseTest4 {
     call.addBatch();
     call.setInt(1, 3);
     call.addBatch();
-    call.executeBatch();
+    call.executeBatch().get();
     call.close();
 
     VxStatement stmt = con.createStatement();

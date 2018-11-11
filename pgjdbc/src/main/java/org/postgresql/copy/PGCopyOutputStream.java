@@ -33,8 +33,8 @@ public class PGCopyOutputStream extends OutputStream implements CopyIn {
  * @throws ExecutionException 
  * @throws InterruptedException 
    */
-  public PGCopyOutputStream(PGConnection connection, String sql) throws SQLException, InterruptedException, ExecutionException {
-    this(connection, sql, CopyManager.DEFAULT_BUFFER_SIZE);
+  public static CompletableFuture<PGCopyOutputStream> getPGCopyOutputStreamInstance(PGConnection connection, String sql) throws SQLException{
+    return PGCopyOutputStream.getPGCopyOutputStreamInstance(connection, sql, CopyManager.DEFAULT_BUFFER_SIZE);
   }
 
   /**
@@ -47,9 +47,13 @@ public class PGCopyOutputStream extends OutputStream implements CopyIn {
  * @throws ExecutionException 
  * @throws InterruptedException 
    */
-  public PGCopyOutputStream(PGConnection connection, String sql, int bufferSize)
-      throws SQLException, InterruptedException, ExecutionException {
-    this(connection.getCopyAPI().copyIn(sql).get(), bufferSize);
+   public static CompletableFuture<PGCopyOutputStream> getPGCopyOutputStreamInstance(PGConnection connection
+      , String sql, int bufferSize) throws SQLException{
+    try {
+      return PGCopyOutputStream.getPGCopyOutputStreamInstance(await(connection.getCopyAPI().copyIn(sql)), bufferSize);
+    } catch (SQLException e) {
+      throw new SQLException(e);
+    }
   }
 
   /**
@@ -57,8 +61,8 @@ public class PGCopyOutputStream extends OutputStream implements CopyIn {
    *
    * @param op COPY FROM STDIN operation
    */
-  public PGCopyOutputStream(CopyIn op) {
-    this(op, CopyManager.DEFAULT_BUFFER_SIZE);
+  public static CompletableFuture<PGCopyOutputStream> getPGCopyOutputStreamInstance(CopyIn op){
+    return PGCopyOutputStream.getPGCopyOutputStreamInstance(op, CopyManager.DEFAULT_BUFFER_SIZE);
   }
 
   /**
@@ -67,9 +71,13 @@ public class PGCopyOutputStream extends OutputStream implements CopyIn {
    * @param op         COPY FROM STDIN operation
    * @param bufferSize try to send this many bytes at a time
    */
-  public PGCopyOutputStream(CopyIn op, int bufferSize) {
+  private PGCopyOutputStream(CopyIn op, int bufferSize) {
     this.op = op;
     copyBuffer = new byte[bufferSize];
+  }
+  
+  public static CompletableFuture<PGCopyOutputStream> getPGCopyOutputStreamInstance(CopyIn op, int bufferSize){
+    return CompletableFuture.completedFuture(new PGCopyOutputStream(op, bufferSize));
   }
 
   public void write(int b) throws IOException {

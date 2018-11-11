@@ -42,7 +42,7 @@ public class VxGetXXXTest {
 
     pstmt.setTimestamp(1, new Timestamp(cal.getTime().getTime()));
     pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.close();
   }
 
@@ -72,7 +72,7 @@ public class VxGetXXXTest {
 
     while (rs.next().get()) {
       // make this return a PGobject
-      Object obj = rs.getObject(1, new HashMap<String, Class<?>>());
+      Object obj = rs.getObject(1, new HashMap<String, Class<?>>()).get();
 
       // it should not be an instance of PGInterval
       assertTrue(obj instanceof org.postgresql.util.PGInterval);

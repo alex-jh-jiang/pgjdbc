@@ -39,8 +39,8 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testNotify() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
-    stmt.executeUpdate("NOTIFY mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
+    stmt.executeUpdate("NOTIFY mynotification").get();
 
     PGNotification[] notifications = ((org.postgresql.PGConnection) conn).getNotifications().get();
     assertNotNull(notifications);
@@ -73,7 +73,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotify() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Notify on a separate connection to get an async notify on the first.
     connectAndNotify("mynotification");
@@ -105,7 +105,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithTimeout() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Here we let the getNotifications() timeout.
     long startMillis = System.currentTimeMillis();
@@ -121,7 +121,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithTimeoutAndMessagesAvailableWhenStartingListening() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Now we check the case where notifications are already available while we are starting to
     // listen for notifications
@@ -139,7 +139,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithEndlessTimeoutAndMessagesAvailableWhenStartingListening() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Now we check the case where notifications are already available while we are waiting forever
     connectAndNotify("mynotification");
@@ -156,7 +156,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithTimeoutAndMessagesSendAfter() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Now we check the case where notifications are send after we have started to listen for
     // notifications
@@ -182,7 +182,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithEndlessTimeoutAndMessagesSendAfter() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Now we check the case where notifications are send after we have started to listen for
     // notifications forever
@@ -208,7 +208,7 @@ public class VxNotifyTest {
   @Test(timeout = 60000)
   public void testAsyncNotifyWithTimeoutAndSocketThatBecomesClosed() throws Exception {
     VxStatement stmt = conn.createStatement();
-    stmt.executeUpdate("LISTEN mynotification");
+    stmt.executeUpdate("LISTEN mynotification").get();
 
     // Here we check what happens when the connection gets closed from another thread. This
     // should be able, and this test ensures that no synchronized statements will stop the
@@ -241,7 +241,7 @@ public class VxNotifyTest {
     try {
       conn2 = VxTestUtil.openDB().get();
       VxStatement stmt2 = conn2.createStatement();
-      stmt2.executeUpdate("NOTIFY " + channel);
+      stmt2.executeUpdate("NOTIFY " + channel).get();
       stmt2.close();
     } catch (Exception e) {
       throw new RuntimeException("Couldn't notify '" + channel + "'.",e);

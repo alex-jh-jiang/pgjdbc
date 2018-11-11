@@ -204,7 +204,7 @@ public class VxPGTimeTest extends VxBaseTest4 {
       pstmt2.setTime(2, time);
     }
 
-    assertEquals(1, pstmt2.executeUpdate());
+    assertEquals(1, (Object)pstmt2.executeUpdate().get());
 
     // Query the values back out.
     VxStatement stmt = con.createStatement();
@@ -233,7 +233,7 @@ public class VxPGTimeTest extends VxBaseTest4 {
     assertEquals(tz1, tz2);
 
     // Clean up.
-    assertEquals(2, stmt.executeUpdate("DELETE FROM " + TEST_TABLE));
+    assertEquals(2, (Object)stmt.executeUpdate("DELETE FROM " + TEST_TABLE).get());
     stmt.close();
     pstmt2.close();
     pstmt1.close();

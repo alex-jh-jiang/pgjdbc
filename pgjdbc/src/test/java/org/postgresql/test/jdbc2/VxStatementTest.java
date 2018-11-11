@@ -55,8 +55,8 @@ public class VxStatementTest {
     VxTestUtil.createTempTable(con, "comparisontest", "str1 varchar(5), str2 varchar(15)");
     VxTestUtil.createTable(con, "test_lock", "name text");
     VxStatement stmt = con.createStatement();
-    stmt.executeUpdate(VxTestUtil.insertSQL("comparisontest", "str1,str2", "'_abcd','_found'"));
-    stmt.executeUpdate(VxTestUtil.insertSQL("comparisontest", "str1,str2", "'%abcd','%found'"));
+    stmt.executeUpdate(VxTestUtil.insertSQL("comparisontest", "str1,str2", "'_abcd','_found'")).get();
+    stmt.executeUpdate(VxTestUtil.insertSQL("comparisontest", "str1,str2", "'%abcd','%found'")).get();
     stmt.close();
   }
 
@@ -66,8 +66,8 @@ public class VxStatementTest {
     VxTestUtil.dropTable(con, "escapetest");
     VxTestUtil.dropTable(con, "comparisontest");
     VxTestUtil.dropTable(con, "test_lock");
-    con.createStatement().execute("DROP FUNCTION IF EXISTS notify_loop()");
-    con.createStatement().execute("DROP FUNCTION IF EXISTS notify_then_sleep()");
+    con.createStatement().execute("DROP FUNCTION IF EXISTS notify_loop()").get();
+    con.createStatement().execute("DROP FUNCTION IF EXISTS notify_then_sleep()").get();
     con.close();
   }
 
@@ -120,7 +120,11 @@ public class VxStatementTest {
   @Test
   public void testEmptyQuery() throws SQLException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("");
+    try {
+      stmt.execute("").get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     assertNull(stmt.getResultSet());
     assertTrue(!stmt.getMoreResults());
   }
@@ -528,8 +532,8 @@ public class VxStatementTest {
             + "END LOOP; "
             + "END "
             + "$BODY$ "
-            + "LANGUAGE plpgsql;");
-    con.createStatement().execute("SET SESSION client_min_messages = 'NOTICE'");
+            + "LANGUAGE plpgsql;").get();
+    con.createStatement().execute("SET SESSION client_min_messages = 'NOTICE'").get();
     final VxPreparedStatement statement = con.prepareStatement("SELECT notify_loop()");
     final Callable<Void> warningReader = new Callable<Void>() {
       @Override
@@ -571,7 +575,7 @@ public class VxStatementTest {
     final ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
       final Future warningReaderThread = executor.submit(warningReader);
-      statement.execute();
+      statement.execute().get();
       //If the reader doesn't return after 2 seconds, it failed.
       warningReaderThread.get(2, TimeUnit.SECONDS);
     } finally {
@@ -590,7 +594,7 @@ public class VxStatementTest {
   public void testParsingSemiColons() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
     stmt.execute(
-        "CREATE RULE r1 AS ON INSERT TO escapetest DO (DELETE FROM test_statement ; INSERT INTO test_statement VALUES (1); INSERT INTO test_statement VALUES (2); );");
+        "CREATE RULE r1 AS ON INSERT TO escapetest DO (DELETE FROM test_statement ; INSERT INTO test_statement VALUES (1); INSERT INTO test_statement VALUES (2); );").get();
     stmt.executeUpdate("INSERT INTO escapetest(ts) VALUES (NULL)").get();
     VxResultSet rs = stmt.executeQuery("SELECT i from test_statement ORDER BY i").get();
     assertTrue(rs.next().get());
@@ -648,7 +652,11 @@ public class VxStatementTest {
   public void testUnbalancedParensParseError() throws SQLException {
     VxStatement stmt = con.createStatement();
     try {
-      stmt.executeQuery("SELECT i FROM test_statement WHERE (1 > 0)) ORDER BY i");
+      try {
+        stmt.executeQuery("SELECT i FROM test_statement WHERE (1 > 0)) ORDER BY i").get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       fail("Should have thrown a parse error.");
     } catch (SQLException sqle) {
     }
@@ -658,7 +666,11 @@ public class VxStatementTest {
   public void testExecuteUpdateFailsOnSelect() throws SQLException {
     VxStatement stmt = con.createStatement();
     try {
-      stmt.executeUpdate("SELECT 1");
+      try {
+        stmt.executeUpdate("SELECT 1").get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       fail("Should have thrown an error.");
     } catch (SQLException sqle) {
     }
@@ -668,7 +680,11 @@ public class VxStatementTest {
   public void testExecuteUpdateFailsOnMultiStatementSelect() throws SQLException {
     VxStatement stmt = con.createStatement();
     try {
-      stmt.executeUpdate("/* */; SELECT 1");
+      try {
+        stmt.executeUpdate("/* */; SELECT 1").get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       fail("Should have thrown an error.");
     } catch (SQLException sqle) {
     }
@@ -682,7 +698,11 @@ public class VxStatementTest {
     try {
       stmt.setQueryTimeout(1);
       start = System.currentTimeMillis();
-      stmt.execute("select pg_sleep(10)");
+      try {
+        stmt.execute("select pg_sleep(10)").get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
     } catch (SQLException sqle) {
       // state for cancel
       if ("57014".equals(sqle.getSQLState())) {
@@ -1047,7 +1067,11 @@ public class VxStatementTest {
     VxPreparedStatement ps = null;
     try {
       ps = con.prepareStatement(sql);
-      ps.executeUpdate();
+      try {
+        ps.executeUpdate().get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
       fail("Query with unterminated " + errorType + " should fail");
     } catch (SQLException e) {
       assertEquals("Query should fail with unterminated " + errorType,

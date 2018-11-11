@@ -471,7 +471,12 @@ public class VxTestUtil {
 	public static void dropDomain(VxConnection con, String name) throws SQLException {
 		VxStatement st = con.createStatement();
 		try {
-			st.executeUpdate("drop domain " + name + " cascade");
+			try {
+        st.executeUpdate("drop domain " + name + " cascade").get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        throw new SQLException(e);
+      }
 		} catch (SQLException ex) {
 			if (!con.getAutoCommit()) {
 				throw ex;
@@ -512,7 +517,12 @@ public class VxTestUtil {
 		VxStatement stmt = con.createStatement();
 		try {
 			String sql = "DROP SEQUENCE " + sequence;
-			stmt.executeUpdate(sql);
+			try {
+        stmt.executeUpdate(sql).get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        throw new SQLException(e);
+      }
 		} catch (SQLException sqle) {
 			if (!con.getAutoCommit()) {
 				throw sqle;
@@ -523,7 +533,7 @@ public class VxTestUtil {
 	/*
 	 * Helper - drops a table
 	 */
-	public static void dropTable(VxConnection con, String table) throws InterruptedException, ExecutionException {
+	public static void dropTable(VxConnection con, String table) throws InterruptedException, ExecutionException, SQLException {
 
 		try {
 			VxStatement stmt = con.createStatement();
@@ -534,9 +544,9 @@ public class VxTestUtil {
 			// it's easy to get a table doesn't exist error.
 			// we want to ignore these, but if we're in a
 			// transaction then we've got trouble
-			// if (!con.getAutoCommit()) {
-			// throw ex;
-			// }
+      if (!con.getAutoCommit()) {
+       throw ex;
+      }
 		}
 	}
 
@@ -547,7 +557,11 @@ public class VxTestUtil {
 		VxStatement stmt = con.createStatement();
 		try {
 			String sql = "DROP TYPE " + type + " CASCADE";
-			stmt.executeUpdate(sql);
+			try {
+        stmt.executeUpdate(sql).get();
+      } catch (InterruptedException | ExecutionException e) {
+       throw new SQLException(e);
+      }
 		} catch (SQLException ex) {
 			if (!con.getAutoCommit()) {
 				throw ex;
@@ -843,7 +857,7 @@ public class VxTestUtil {
 			stm = connection.prepareStatement(
 					"select pg_drop_replication_slot(slot_name) " + "from pg_replication_slots where slot_name = ?");
 			stm.setString(1, slotName);
-			stm.execute();
+			stm.execute().get();
 		} finally {
 			closeQuietly(stm);
 		}

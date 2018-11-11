@@ -103,7 +103,7 @@ public class VxDatabaseMetaDataPropertiesTest {
   public void testValues() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    int indexMaxKeys = dbmd.getMaxColumnsInIndex();
+    int indexMaxKeys = dbmd.getMaxColumnsInIndex().get();
     assertEquals(32, indexMaxKeys);
   }
 

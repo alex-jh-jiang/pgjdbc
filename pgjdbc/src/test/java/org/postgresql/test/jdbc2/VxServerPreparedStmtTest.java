@@ -53,7 +53,7 @@ public class VxServerPreparedStmtTest extends VxBaseTest4 {
       VxTestUtil.dropTable(con, "testsps");
     } catch (InterruptedException | ExecutionException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new SQLException(e);
     }
     super.tearDown();
   }
@@ -235,7 +235,7 @@ public class VxServerPreparedStmtTest extends VxBaseTest4 {
       VxPreparedStatement pstmt = con.prepareStatement("INSERT INTO testsps_bytea(data) VALUES (?)");
       ((VxStatement) pstmt).setUseServerPrepare(true);
       pstmt.setBytes(1, new byte[100]);
-      pstmt.executeUpdate();
+      pstmt.executeUpdate().get();
     } finally {
       VxTestUtil.dropTable(con, "testsps_bytea");
     }
@@ -248,7 +248,7 @@ public class VxServerPreparedStmtTest extends VxBaseTest4 {
     // still complete without error.
     VxPreparedStatement pstmt = con.prepareStatement("CREATE TABLE testsps_bad(data int)");
     ((VxStatement) pstmt).setUseServerPrepare(true);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
     VxTestUtil.dropTable(con, "testsps_bad");
   }
 
@@ -263,11 +263,11 @@ public class VxServerPreparedStmtTest extends VxBaseTest4 {
       ((VxStatement) pstmt).setUseServerPrepare(true);
       pstmt.setInt(1, 1);
       pstmt.setInt(2, 2);
-      pstmt.executeUpdate(); // Two inserts.
+      pstmt.executeUpdate().get(); // Two inserts.
 
       pstmt.setInt(1, 3);
       pstmt.setInt(2, 4);
-      pstmt.executeUpdate(); // Two more inserts.
+      pstmt.executeUpdate().get(); // Two more inserts.
 
       VxResultSet check = con.createStatement().executeQuery("SELECT COUNT(*) FROM testsps_multiple").get();
       assertTrue(check.next().get());

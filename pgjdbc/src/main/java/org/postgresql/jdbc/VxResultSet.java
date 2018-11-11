@@ -261,11 +261,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 				sb.setLength(0);
 				sb.append("CLOSE ");
 				Utils.escapeIdentifier(sb, cursorName);
-				try {
-					connection.execSQLUpdate(sb.toString()).get();
-				} catch (InterruptedException | ExecutionException e) {
-					throw new SQLException(e);
-				}
+				await(connection.execSQLUpdate(sb.toString()));
 				((VxResultSet) rs).setRefCursor(cursorName);
 				return CompletableFuture.completedFuture(rs);
 			}
@@ -1438,7 +1434,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 	 * Is this ResultSet updateable?
 	 */
 
-	boolean isUpdateable() throws SQLException {
+	CompletableFuture<Boolean> isUpdateable() throws SQLException {
 		checkClosed();
 
 		if (resultsetconcurrency == VxBaseResultSet.CONCUR_READ_ONLY) {
@@ -1447,7 +1443,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 		}
 
 		if (updateable) {
-			return true;
+			return CompletableFuture.completedFuture(true);
 		}
 
 		connection.getLogger().log(Level.FINE, "checking if rs is updateable");
@@ -1456,7 +1452,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 
 		if (!singleTable) {
 			connection.getLogger().log(Level.FINE, "not a single table");
-			return false;
+			return CompletableFuture.completedFuture(false);
 		}
 
 		connection.getLogger().log(Level.FINE, "getting primary keys");
@@ -1491,8 +1487,8 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 			String quotelessSchemaName = s[1];
 			VxResultSet rs;
       try {
-        rs = connection.getMetaData().getPrimaryKeys("", quotelessSchemaName,
-        		quotelessTableName);
+        rs = await(connection.getMetaData().getPrimaryKeys("", quotelessSchemaName,
+        		quotelessTableName));
       } catch (InterruptedException | ExecutionException e) {
         throw new SQLException(e);
       }
@@ -1524,7 +1520,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 
 		connection.getLogger().log(Level.FINE, "checking primary key {0}", updateable);
 
-		return updateable;
+		return CompletableFuture.completedFuture(updateable);
 	}
 
 	/**
@@ -2664,10 +2660,10 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 		field.setPGType(pgType);
 	}
 
-	private void checkUpdateable() throws SQLException {
+	private CompletableFuture<Void> checkUpdateable() throws SQLException {
 		checkClosed();
 
-		if (!isUpdateable()) {
+		if (!await(isUpdateable())) {
 			throw new PSQLException(GT.tr(
 					"ResultSet is not updateable.  The query that generated this result set must select only one table, and must select all primary keys from that table. See the JDBC 2.1 API Specification, section 5.6 for more details."),
 					PSQLState.INVALID_CURSOR_STATE);
@@ -2677,6 +2673,7 @@ public class VxResultSet implements VxBaseResultSet, org.postgresql.PGRefCursorR
 			// allow every column to be updated without a rehash.
 			updateValues = new HashMap<String, Object>((int) (fields.length / 0.75), 0.75f);
 		}
+    return CompletableFuture.completedFuture(null);
 	}
 
 	protected void checkClosed() throws SQLException {

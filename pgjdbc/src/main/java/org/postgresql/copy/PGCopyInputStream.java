@@ -35,8 +35,12 @@ public class PGCopyInputStream extends InputStream implements CopyOut {
  * @throws ExecutionException 
  * @throws InterruptedException 
    */
-  public PGCopyInputStream(PGConnection connection, String sql) throws SQLException, InterruptedException, ExecutionException {
-    this(connection.getCopyAPI().copyOut(sql).get());
+  public static CompletableFuture<PGCopyInputStream> getPGCopyInputStreamInstance(PGConnection connection, String sql) throws SQLException{
+    try {
+      return PGCopyInputStream.getPGCopyInputStreamInstance(await(connection.getCopyAPI().copyOut(sql)));
+    } catch (SQLException e) {
+      throw new SQLException(e);
+    }
   }
 
   /**
@@ -44,8 +48,12 @@ public class PGCopyInputStream extends InputStream implements CopyOut {
    *
    * @param op COPY TO STDOUT operation
    */
-  public PGCopyInputStream(CopyOut op) {
+  private PGCopyInputStream(CopyOut op) {
     this.op = op;
+  }
+  
+  public static CompletableFuture<PGCopyInputStream> getPGCopyInputStreamInstance(CopyOut op){
+    return CompletableFuture.completedFuture(new PGCopyInputStream(op));
   }
 
   private CompletableFuture<Boolean> gotBuf() throws IOException {

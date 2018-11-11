@@ -55,7 +55,7 @@ public class VxTypeCacheDLLStressTest extends VxBaseTest4 {
     Future<Void> typeInfoCache = executor.submit(new Callable<Void>() {
       public Void call() throws Exception {
         while (!Thread.currentThread().isInterrupted()) {
-          VxResultSet rs = con.getMetaData().getTypeInfo();
+          VxResultSet rs = con.getMetaData().getTypeInfo().get();
           rs.close();
         }
         return null;
@@ -67,7 +67,7 @@ public class VxTypeCacheDLLStressTest extends VxBaseTest4 {
         VxStatement stmt = con2.createStatement();
 
         while (!Thread.currentThread().isInterrupted()) {
-          stmt.execute("drop TABLE create_and_drop_table");
+          stmt.execute("drop TABLE create_and_drop_table").get();
           stmt.execute("CREATE TABLE create_and_drop_table"
               + "( user_id serial PRIMARY KEY, username VARCHAR (50) UNIQUE NOT NULL"
               + ", password VARCHAR (50) NOT NULL, email VARCHAR (355) UNIQUE NOT NULL"

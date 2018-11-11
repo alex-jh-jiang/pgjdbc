@@ -51,10 +51,20 @@ public class VxCursorFetchTest extends VxBaseTest4 {
   @Override
   public void tearDown() throws SQLException {
     if (!con.getAutoCommit()) {
-      con.rollback();
+      try {
+        con.rollback().get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        throw new SQLException(e);
+      }
     }
 
-    con.setAutoCommit(true);
+    try {
+      con.setAutoCommit(true).get();
+    } catch (InterruptedException | ExecutionException e1) {
+      // TODO Auto-generated catch block
+      throw new SQLException(e1);
+    }
     try {
       VxTestUtil.dropTable(con, "test_fetch");
     } catch (InterruptedException | ExecutionException e) {

@@ -46,9 +46,9 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
 
     VxStatement st2 = con.createStatement();
     // create pk for multicol table
-    st2.execute("ALTER TABLE multicol ADD CONSTRAINT multicol_pk PRIMARY KEY (id1, id2)");
+    st2.execute("ALTER TABLE multicol ADD CONSTRAINT multicol_pk PRIMARY KEY (id1, id2)").get();
     // put some dummy data into second
-    st2.execute("insert into second values (1,'anyvalue' )");
+    st2.execute("insert into second values (1,'anyvalue' )").get();
     st2.close();
 
   }
@@ -80,13 +80,13 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
 
     assertTrue(rs.next().get());
     assertEquals(1, (Object)rs.getInt("id1").get());
-    rs.deleteRow();
+    rs.deleteRow().get();
     assertTrue(rs.isBeforeFirst());
 
     assertTrue(rs.next().get());
     assertTrue(rs.next().get());
     assertEquals(3, (Object)rs.getInt("id1").get());
-    rs.deleteRow();
+    rs.deleteRow().get();
     assertEquals(2, (Object)rs.getInt("id1").get());
 
     rs.close();
@@ -113,7 +113,7 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
 
     // real update
     rs.updateInt(1, 999);
-    rs.updateRow();
+    rs.updateRow().get();
     assertEquals(999, (Object)rs.getInt(1).get());
     assertEquals("anyvalue", rs.getString(2).get());
 
@@ -149,13 +149,13 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     }
 
     try {
-      rs.updateRow();
+      rs.updateRow().get();
       fail("Can't use an incorrectly positioned result set.");
     } catch (SQLException sqle) {
     }
 
     try {
-      rs.deleteRow();
+      rs.deleteRow().get();
       fail("Can't use an incorrectly positioned result set.");
     } catch (SQLException sqle) {
     }
@@ -205,7 +205,7 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
       rs.moveToInsertRow();
       rs.updateInt(1, 1);
       rs.updateTimestamp(2, ts);
-      rs.insertRow();
+      rs.insertRow().get();
       rs.first();
       assertEquals(ts, rs.getTimestamp(2).get());
     } finally {
@@ -228,14 +228,14 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     rs.updateAsciiStream("asi", null, 17);
     rs.updateCharacterStream("chr", null, 81);
     rs.updateBinaryStream("bin", null, 0);
-    rs.insertRow();
+    rs.insertRow().get();
 
     rs.moveToInsertRow();
     rs.updateInt(1, 3);
     rs.updateAsciiStream("asi", new ByteArrayInputStream(string.getBytes("US-ASCII")), 5);
     rs.updateCharacterStream("chr", new StringReader(string), 5);
     rs.updateBinaryStream("bin", new ByteArrayInputStream(bytes), bytes.length);
-    rs.insertRow();
+    rs.insertRow().get();
 
     rs.beforeFirst();
     rs.next();
@@ -249,14 +249,14 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     rs.updateAsciiStream("asi", new ByteArrayInputStream(string.getBytes("US-ASCII")), 5);
     rs.updateCharacterStream("chr", new StringReader(string), 5);
     rs.updateBinaryStream("bin", new ByteArrayInputStream(bytes), bytes.length);
-    rs.updateRow();
+    rs.updateRow().get();
 
     assertEquals(2, (Object)rs.getInt(1).get());
     assertEquals(string, rs.getString(2).get());
     assertEquals(string, rs.getString(3).get());
     assertArrayEquals(bytes, rs.getBytes(4));
 
-    rs.refreshRow();
+    rs.refreshRow().get();
 
     assertEquals(2, (Object)rs.getInt(1).get());
     assertEquals(string, rs.getString(2).get());
@@ -294,26 +294,26 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     rs.updateInt(1, 1);
     rs.updateString(2, "jake");
     rs.updateString(3, "avalue");
-    rs.insertRow();
+    rs.insertRow().get();
     rs.first();
 
     rs.updateInt("id", 2);
     rs.updateString("name", "dave");
-    rs.updateRow();
+    rs.updateRow().get();
 
     assertEquals(2, rs.getInt("id"));
     assertEquals("dave", rs.getString("name"));
     assertEquals("avalue", rs.getString("notselected"));
 
-    rs.deleteRow();
+    rs.deleteRow().get();
     rs.moveToInsertRow();
     rs.updateInt("id", 3);
     rs.updateString("name", "paul");
 
-    rs.insertRow();
+    rs.insertRow().get();
 
     try {
-      rs.refreshRow();
+      rs.refreshRow().get();
       fail("Can't refresh when on the insert row.");
     } catch (SQLException sqle) {
     }
@@ -329,7 +329,7 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
       while (rs.next().get()) {
         rs.updateInt("id", 2);
         rs.updateString("name", "dave");
-        rs.updateRow();
+        rs.updateRow().get();
       }
 
 
@@ -349,10 +349,10 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     rs.updateInt("id", 4);
     rs.updateString("name", "dave4");
 
-    rs.insertRow();
+    rs.insertRow().get();
     rs.updateInt("id", 5);
     rs.updateString("name", "dave5");
-    rs.insertRow();
+    rs.insertRow().get();
 
     rs.moveToCurrentRow();
     assertEquals(3, rs.getInt("id"));
@@ -434,7 +434,7 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
     VxResultSet rs = st.executeQuery("select * from only second").get();
     assertTrue(rs.next().get());
     rs.updateInt(1, 2);
-    rs.updateRow();
+    rs.updateRow().get();
   }
 
   @Test
@@ -476,11 +476,11 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
   public void testArray() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt =
         con.createStatement(java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_UPDATABLE);
-    stmt.executeUpdate("INSERT INTO updateable (id, intarr) VALUES (1, '{1,2,3}'::int4[])");
+    stmt.executeUpdate("INSERT INTO updateable (id, intarr) VALUES (1, '{1,2,3}'::int4[])").get();
     VxResultSet rs = stmt.executeQuery("SELECT id, intarr FROM updateable").get();
     assertTrue(rs.next().get());
     rs.updateObject(2, rs.getArray(2));
-    rs.updateRow();
+    rs.updateRow().get();
 
     Array arr = rs.getArray(2).get();
     assertEquals(Types.INTEGER, arr.getBaseType());
@@ -522,13 +522,13 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
   public void testMultiColumnUpdate() throws Exception {
     VxStatement st =
         con.createStatement(java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_UPDATABLE);
-    st.executeUpdate("INSERT INTO multicol (id1,id2,val) VALUES (1,2,'val')");
+    st.executeUpdate("INSERT INTO multicol (id1,id2,val) VALUES (1,2,'val')").get();
 
     VxResultSet rs = st.executeQuery("SELECT id1, id2, val FROM multicol").get();
     assertTrue(rs.next().get());
     assertEquals("val", rs.getString("val"));
     rs.updateString("val", "newval");
-    rs.updateRow();
+    rs.updateRow().get();
     rs.close();
 
     rs = st.executeQuery("SELECT id1, id2, val FROM multicol").get();
@@ -576,7 +576,7 @@ public class VxUpdateableResultTest extends VxBaseTest4 {
         int id1 = rs.getInt("id1").get();
         Assert.assertEquals(1, id1);
         rs.updateString("name1", "updatedValue");
-        rs.updateRow();
+        rs.updateRow().get();
       } finally {
         VxTestUtil.closeQuietly(rs);
         VxTestUtil.closeQuietly(ps);

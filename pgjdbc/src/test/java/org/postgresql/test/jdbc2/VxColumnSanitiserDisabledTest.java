@@ -45,7 +45,7 @@ public class VxColumnSanitiserDisabledTest {
     VxTestUtil.createTable(conn, "allmixedup",
         "id int primary key, \"DESCRIPTION\" varchar(40), \"fOo\" varchar(3)");
     VxStatement data = conn.createStatement();
-    data.execute(VxTestUtil.insertSQL("allmixedup", "1,'mixed case test', 'bar'"));
+    data.execute(VxTestUtil.insertSQL("allmixedup", "1,'mixed case test', 'bar'")).get();
     data.close();
   }
 

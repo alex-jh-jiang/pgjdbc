@@ -205,7 +205,7 @@ public class VxBatchedInsertReWriteEnabledTest extends VxBaseTest4 {
     VxPreparedStatement pstmt = null;
     try {
       VxPreparedStatement clean = con.prepareStatement("truncate table testbatch");
-      clean.execute();
+      clean.execute().get();
       clean.close();
 
       pstmt = con.prepareStatement("INSERT INTO testbatch " +  values + "(?,?,?)" + suffix);

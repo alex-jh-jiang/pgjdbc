@@ -691,7 +691,7 @@ public class VxConnection {
 		firstWarning = null;
 	}
 
-	public void setReadOnly(boolean readOnly) throws SQLException {
+	public CompletableFuture<Void> setReadOnly(boolean readOnly) throws SQLException {
 		checkClosed();
 		if (queryExecutor.getTransactionState() != TransactionState.IDLE) {
 			throw new PSQLException(
@@ -702,15 +702,13 @@ public class VxConnection {
 		if (readOnly != this.readOnly) {
 			String readOnlySql = "SET SESSION CHARACTERISTICS AS TRANSACTION "
 					+ (readOnly ? "READ ONLY" : "READ WRITE");
-			try {
-				execSQLUpdate(readOnlySql).get();
-			} catch (InterruptedException | ExecutionException e) {
-				throw new SQLException(e);
-			} // nb: no BEGIN triggered.
+			await(execSQLUpdate(readOnlySql));
+			// nb: no BEGIN triggered.
 		}
 
 		this.readOnly = readOnly;
 		LOGGER.log(Level.FINE, "  setReadOnly = {0}", readOnly);
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public boolean isReadOnly() throws SQLException {
@@ -837,7 +835,7 @@ public class VxConnection {
 		return CompletableFuture.completedFuture(java.sql.Connection.TRANSACTION_READ_COMMITTED); // Best guess.
 	}
 
-	public void setTransactionIsolation(int level) throws SQLException {
+	public CompletableFuture<Void> setTransactionIsolation(int level) throws SQLException {
 		checkClosed();
 
 		if (queryExecutor.getTransactionState() != TransactionState.IDLE) {
@@ -852,12 +850,10 @@ public class VxConnection {
 		}
 
 		String isolationLevelSQL = "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL " + isolationLevelName;
-		try {
-			execSQLUpdate(isolationLevelSQL).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new SQLException(e);
-		} // nb: no BEGIN triggered
+		await(execSQLUpdate(isolationLevelSQL));
+		// nb: no BEGIN triggered
 		LOGGER.log(Level.FINE, "  setTransactionIsolation = {0}", isolationLevelName);
+		return CompletableFuture.completedFuture(null);
 	}
 
 	protected String getIsolationLevelName(int level) {
@@ -1354,7 +1350,7 @@ public class VxConnection {
 		return CompletableFuture.completedFuture(false);
 	}
 
-	public void setClientInfo(String name, String value) throws SQLClientInfoException {
+	public CompletableFuture<Void> setClientInfo(String name, String value) throws SQLClientInfoException {
 		try {
 			checkClosed();
 		} catch (final SQLException cause) {
@@ -1369,18 +1365,15 @@ public class VxConnection {
 			}
 			final String oldValue = queryExecutor.getApplicationName();
 			if (value.equals(oldValue)) {
-				return;
+				return CompletableFuture.completedFuture(null);
 			}
 
 			try {
 				StringBuilder sql = new StringBuilder("SET application_name = '");
 				Utils.escapeLiteral(sql, value, getStandardConformingStrings());
 				sql.append("'");
-				try {
-					execSQLUpdate(sql.toString()).get();
-				} catch (InterruptedException | ExecutionException e) {
-					throw new SQLException(e);
-				}
+				await(execSQLUpdate(sql.toString()));
+				
 			} catch (SQLException sqle) {
 				Map<String, ClientInfoStatus> failures = new HashMap<String, ClientInfoStatus>();
 				failures.put(name, ClientInfoStatus.REASON_UNKNOWN);
@@ -1391,10 +1384,11 @@ public class VxConnection {
 				LOGGER.log(Level.FINE, "  setClientInfo = {0} {1}", new Object[] { name, value });
 			}
 			_clientInfo.put(name, value);
-			return;
+			return CompletableFuture.completedFuture(null);
 		}
 
 		addWarning(new SQLWarning(GT.tr("ClientInfo property not supported."), PSQLState.NOT_IMPLEMENTED.getState()));
+    return CompletableFuture.completedFuture(null);
 	}
 
 	public void setClientInfo(Properties properties) throws SQLClientInfoException {
@@ -1605,27 +1599,22 @@ public class VxConnection {
 		return CompletableFuture.completedFuture(savepoint);
 	}
 
-	public void rollback(Savepoint savepoint) throws SQLException {
+	public CompletableFuture<Void> rollback(Savepoint savepoint) throws SQLException {
 		checkClosed();
 
 		PSQLSavepoint pgSavepoint = (PSQLSavepoint) savepoint;
-		try {
-			execSQLUpdate("ROLLBACK TO SAVEPOINT " + pgSavepoint.getPGName()).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new SQLException(e);
-		}
+		await(execSQLUpdate("ROLLBACK TO SAVEPOINT " + pgSavepoint.getPGName()));
+
+		return CompletableFuture.completedFuture(null);
 	}
 
-	public void releaseSavepoint(Savepoint savepoint) throws SQLException {
+	public CompletableFuture<Void> releaseSavepoint(Savepoint savepoint) throws SQLException {
 		checkClosed();
 
 		PSQLSavepoint pgSavepoint = (PSQLSavepoint) savepoint;
-		try {
-			execSQLUpdate("RELEASE SAVEPOINT " + pgSavepoint.getPGName()).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new SQLException(e);
-		}
+		await(execSQLUpdate("RELEASE SAVEPOINT " + pgSavepoint.getPGName()));
 		pgSavepoint.invalidate();
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public VxStatement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {

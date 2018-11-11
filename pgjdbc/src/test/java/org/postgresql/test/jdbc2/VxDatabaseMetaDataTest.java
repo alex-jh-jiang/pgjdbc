@@ -63,21 +63,21 @@ public class VxDatabaseMetaDataTest {
     VxStatement stmt = con.createStatement();
     // we add the following comments to ensure the joins to the comments
     // are done correctly. This ensures we correctly test that case.
-    stmt.execute("comment on table metadatatest is 'this is a table comment'");
-    stmt.execute("comment on column metadatatest.id is 'this is a column comment'");
+    stmt.execute("comment on table metadatatest is 'this is a table comment'").get();
+    stmt.execute("comment on column metadatatest.id is 'this is a column comment'").get();
 
     stmt.execute(
-        "CREATE OR REPLACE FUNCTION f1(int, varchar) RETURNS int AS 'SELECT 1;' LANGUAGE SQL");
+        "CREATE OR REPLACE FUNCTION f1(int, varchar) RETURNS int AS 'SELECT 1;' LANGUAGE SQL").get();
     stmt.execute(
-        "CREATE OR REPLACE FUNCTION f2(a int, b varchar) RETURNS int AS 'SELECT 1;' LANGUAGE SQL");
+        "CREATE OR REPLACE FUNCTION f2(a int, b varchar) RETURNS int AS 'SELECT 1;' LANGUAGE SQL").get();
     stmt.execute(
-        "CREATE OR REPLACE FUNCTION f3(IN a int, INOUT b varchar, OUT c timestamptz) AS $f$ BEGIN b := 'a'; c := now(); return; END; $f$ LANGUAGE plpgsql");
+        "CREATE OR REPLACE FUNCTION f3(IN a int, INOUT b varchar, OUT c timestamptz) AS $f$ BEGIN b := 'a'; c := now(); return; END; $f$ LANGUAGE plpgsql").get();
     stmt.execute(
-        "CREATE OR REPLACE FUNCTION f4(int) RETURNS metadatatest AS 'SELECT 1, ''a''::text, now(), ''c''::text, ''q''::text' LANGUAGE SQL");
+        "CREATE OR REPLACE FUNCTION f4(int) RETURNS metadatatest AS 'SELECT 1, ''a''::text, now(), ''c''::text, ''q''::text' LANGUAGE SQL").get();
     if (VxTestUtil.haveMinimumServerVersion(con, ServerVersion.v8_4)) {
       // RETURNS TABLE requires PostgreSQL 8.4+
       stmt.execute(
-          "CREATE OR REPLACE FUNCTION f5() RETURNS TABLE (i int) LANGUAGE sql AS 'SELECT 1'");
+          "CREATE OR REPLACE FUNCTION f5() RETURNS TABLE (i int) LANGUAGE sql AS 'SELECT 1'").get();
     }
 
     VxTestUtil.createDomain(con, "nndom", "int not null");
@@ -90,7 +90,7 @@ public class VxDatabaseMetaDataTest {
     // Drop function first because it depends on the
     // metadatatest table's type
     VxStatement stmt = con.createStatement();
-    stmt.execute("DROP FUNCTION f4(int)");
+    stmt.execute("DROP FUNCTION f4(int)").get();
 
     VxTestUtil.dropTable(con, "metadatatest");
     VxTestUtil.dropTable(con, "sercoltest");
@@ -104,9 +104,9 @@ public class VxDatabaseMetaDataTest {
     VxTestUtil.dropType(con, "custom");
     VxTestUtil.dropType(con, "_custom");
 
-    stmt.execute("DROP FUNCTION f1(int, varchar)");
-    stmt.execute("DROP FUNCTION f2(int, varchar)");
-    stmt.execute("DROP FUNCTION f3(int, varchar)");
+    stmt.execute("DROP FUNCTION f1(int, varchar)").get();
+    stmt.execute("DROP FUNCTION f2(int, varchar)").get();
+    stmt.execute("DROP FUNCTION f3(int, varchar)").get();
     VxTestUtil.dropType(con, "domaintable");
     VxTestUtil.dropDomain(con, "nndom");
 
@@ -172,7 +172,7 @@ public class VxDatabaseMetaDataTest {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
 
-    VxResultSet rs = dbmd.getTables(null, null, "metadatates%", new String[]{"TABLE"});
+    VxResultSet rs = dbmd.getTables(null, null, "metadatates%", new String[]{"TABLE"}).get();
     assertTrue(rs.next().get());
     String tableName = rs.getString("TABLE_NAME").get();
     assertEquals("metadatatest", tableName);
@@ -469,8 +469,8 @@ public class VxDatabaseMetaDataTest {
     }
 
     VxStatement stmt = con.createStatement();
-    stmt.execute("ALTER TABLE metadatatest DROP name");
-    stmt.execute("ALTER TABLE metadatatest DROP colour");
+    stmt.execute("ALTER TABLE metadatatest DROP name").get();
+    stmt.execute("ALTER TABLE metadatatest DROP colour").get();
     stmt.close();
 
     VxDatabaseMetaData dbmd = con.getMetaData();
@@ -500,7 +500,7 @@ public class VxDatabaseMetaDataTest {
     /* getFunctionColumns also has to be aware of dropped columns
        add this in here to make sure it can deal with them
      */
-    rs = dbmd.getFunctionColumns(null, null, "f4", null);
+    rs = dbmd.getFunctionColumns(null, null, "f4", null).get();
     assertTrue(rs.next().get());
 
     assertTrue(rs.next().get());
@@ -540,7 +540,7 @@ public class VxDatabaseMetaDataTest {
     // At the moment just test that no exceptions are thrown KJ
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    VxResultSet rs = dbmd.getColumnPrivileges(null, null, "pg_statistic", null);
+    VxResultSet rs = dbmd.getColumnPrivileges(null, null, "pg_statistic", null).get();
     rs.close();
   }
 
@@ -548,7 +548,7 @@ public class VxDatabaseMetaDataTest {
   public void testTablePrivileges() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    VxResultSet rs = dbmd.getTablePrivileges(null, null, "metadatatest");
+    VxResultSet rs = dbmd.getTablePrivileges(null, null, "metadatatest").get();
     boolean l_foundSelect = false;
     while (rs.next().get()) {
       if (rs.getString("GRANTEE").equals(VxTestUtil.getUser())
@@ -565,10 +565,10 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testNoTablePrivileges() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("REVOKE ALL ON metadatatest FROM PUBLIC");
-    stmt.execute("REVOKE ALL ON metadatatest FROM " + VxTestUtil.getUser());
+    stmt.execute("REVOKE ALL ON metadatatest FROM PUBLIC").get();
+    stmt.execute("REVOKE ALL ON metadatatest FROM " + VxTestUtil.getUser()).get();
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getTablePrivileges(null, null, "metadatatest");
+    VxResultSet rs = dbmd.getTablePrivileges(null, null, "metadatatest").get();
     assertTrue(!rs.next().get());
   }
 
@@ -577,18 +577,18 @@ public class VxDatabaseMetaDataTest {
     // At the moment just test that no exceptions are thrown KJ
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    VxResultSet rs = dbmd.getPrimaryKeys(null, null, "pg_class");
+    VxResultSet rs = dbmd.getPrimaryKeys(null, null, "pg_class").get();
     rs.close();
   }
 
   @Test
   public void testIndexInfo() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("create index idx_id on metadatatest (id)");
-    stmt.execute("create index idx_func_single on metadatatest (upper(colour))");
-    stmt.execute("create unique index idx_un_id on metadatatest(id)");
-    stmt.execute("create index idx_func_multi on metadatatest (upper(colour), upper(quest))");
-    stmt.execute("create index idx_func_mixed on metadatatest (colour, upper(quest))");
+    stmt.execute("create index idx_id on metadatatest (id)").get();
+    stmt.execute("create index idx_func_single on metadatatest (upper(colour))").get();
+    stmt.execute("create unique index idx_un_id on metadatatest(id)").get();
+    stmt.execute("create index idx_func_multi on metadatatest (upper(colour), upper(quest))").get();
+    stmt.execute("create index idx_func_mixed on metadatatest (colour, upper(quest))").get();
 
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
@@ -653,7 +653,7 @@ public class VxDatabaseMetaDataTest {
     }
 
     VxStatement stmt = con.createStatement();
-    stmt.execute("CREATE INDEX idx_a_d ON metadatatest (id ASC, quest DESC)");
+    stmt.execute("CREATE INDEX idx_a_d ON metadatatest (id ASC, quest DESC)").get();
     stmt.close();
 
     VxDatabaseMetaData dbmd = con.getMetaData();
@@ -674,7 +674,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testPartialIndexInfo() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("create index idx_p_name_id on metadatatest (name) where id > 5");
+    stmt.execute("create index idx_p_name_id on metadatatest (name) where id > 5").get();
     stmt.close();
 
     VxDatabaseMetaData dbmd = con.getMetaData();
@@ -703,7 +703,7 @@ public class VxDatabaseMetaDataTest {
   public void testFuncWithoutNames() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f1", null);
+    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f1", null).get();
 
     assertTrue(rs.next().get());
     assertEquals("returnValue", rs.getString(4));
@@ -727,7 +727,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testFuncWithNames() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f2", null);
+    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f2", null).get();
 
     assertTrue(rs.next().get());
 
@@ -745,7 +745,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testFuncWithDirection() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f3", null);
+    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f3", null).get();
 
     assertTrue(rs.next().get());
     assertEquals("a", rs.getString(4));
@@ -768,7 +768,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testFuncReturningComposite() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f4", null);
+    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f4", null).get();
 
     assertTrue(rs.next().get());
     assertEquals("$1", rs.getString(4));
@@ -810,7 +810,7 @@ public class VxDatabaseMetaDataTest {
       return;
     }
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f5", null);
+    VxResultSet rs = dbmd.getProcedureColumns(null, null, "f5", null).get();
     assertTrue(rs.next().get());
     assertEquals("returnValue", rs.getString(4));
     assertEquals(java.sql.DatabaseMetaData.procedureColumnReturn, rs.getInt(5));
@@ -838,7 +838,7 @@ public class VxDatabaseMetaDataTest {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
     VxResultSet rs =
-        dbmd.getBestRowIdentifier(null, null, "pg_type", java.sql.DatabaseMetaData.bestRowSession, false);
+        dbmd.getBestRowIdentifier(null, null, "pg_type", java.sql.DatabaseMetaData.bestRowSession, false).get();
     rs.close();
   }
 
@@ -847,7 +847,7 @@ public class VxDatabaseMetaDataTest {
     // At the moment just test that no exceptions are thrown KJ
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
-    VxResultSet rs = dbmd.getProcedures(null, null, null);
+    VxResultSet rs = dbmd.getProcedures(null, null, null).get();
     rs.close();
   }
 
@@ -865,7 +865,7 @@ public class VxDatabaseMetaDataTest {
     VxDatabaseMetaData dbmd = con.getMetaData();
     assertNotNull(dbmd);
 
-    VxResultSet rs = dbmd.getSchemas();
+    VxResultSet rs = dbmd.getSchemas().get();
     boolean foundPublic = false;
     boolean foundEmpty = false;
     boolean foundPGCatalog = false;
@@ -891,11 +891,11 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testEscaping() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getTables(null, null, "a'", new String[]{"TABLE"});
+    VxResultSet rs = dbmd.getTables(null, null, "a'", new String[]{"TABLE"}).get();
     assertTrue(rs.next().get());
-    rs = dbmd.getTables(null, null, "a\\\\", new String[]{"TABLE"});
+    rs = dbmd.getTables(null, null, "a\\\\", new String[]{"TABLE"}).get();
     assertTrue(rs.next().get());
-    rs = dbmd.getTables(null, null, "a\\", new String[]{"TABLE"});
+    rs = dbmd.getTables(null, null, "a\\", new String[]{"TABLE"}).get();
     assertTrue(!rs.next().get());
   }
 
@@ -919,10 +919,10 @@ public class VxDatabaseMetaDataTest {
     VxStatement stmt = null;
     try {
       stmt = con.createStatement();
-      stmt.execute("create schema jdbc");
-      stmt.execute("create type jdbc.testint8 as (i int8)");
+      stmt.execute("create schema jdbc").get();
+      stmt.execute("create type jdbc.testint8 as (i int8)").get();
       VxDatabaseMetaData dbmd = con.getMetaData();
-      VxResultSet rs = dbmd.getUDTs(null, null, "jdbc.testint8", null);
+      VxResultSet rs = dbmd.getUDTs(null, null, "jdbc.testint8", null).get();
       assertTrue(rs.next().get());
       String cat;
       String schema;
@@ -943,7 +943,7 @@ public class VxDatabaseMetaDataTest {
       assertEquals("schema name ", "jdbc", schema);
 
       // now test to see if the fully qualified stuff works as planned
-      rs = dbmd.getUDTs("catalog", "public", "catalog.jdbc.testint8", null);
+      rs = dbmd.getUDTs("catalog", "public", "catalog.jdbc.testint8", null).get();
       assertTrue(rs.next().get());
       cat = rs.getString("type_cat").get();
       schema = rs.getString("type_schem").get();
@@ -960,8 +960,8 @@ public class VxDatabaseMetaDataTest {
           stmt.close();
         }
         stmt = con.createStatement();
-        stmt.execute("drop type jdbc.testint8");
-        stmt.execute("drop schema jdbc");
+        stmt.execute("drop type jdbc.testint8").get();
+        stmt.execute("drop schema jdbc").get();
       } catch (Exception ex) {
       }
     }
@@ -972,10 +972,10 @@ public class VxDatabaseMetaDataTest {
   public void testGetUDT1() throws Exception {
     try {
       VxStatement stmt = con.createStatement();
-      stmt.execute("create domain testint8 as int8");
-      stmt.execute("comment on domain testint8 is 'jdbc123'");
+      stmt.execute("create domain testint8 as int8").get();
+      stmt.execute("comment on domain testint8 is 'jdbc123'").get();
       VxDatabaseMetaData dbmd = con.getMetaData();
-      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", null);
+      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", null).get();
       assertTrue(rs.next().get());
 
       String cat = rs.getString("type_cat").get();
@@ -994,7 +994,7 @@ public class VxDatabaseMetaDataTest {
     } finally {
       try {
         VxStatement stmt = con.createStatement();
-        stmt.execute("drop domain testint8");
+        stmt.execute("drop domain testint8").get();
       } catch (Exception ex) {
       }
     }
@@ -1005,10 +1005,10 @@ public class VxDatabaseMetaDataTest {
   public void testGetUDT2() throws Exception {
     try {
       VxStatement stmt = con.createStatement();
-      stmt.execute("create domain testint8 as int8");
-      stmt.execute("comment on domain testint8 is 'jdbc123'");
+      stmt.execute("create domain testint8 as int8").get();
+      stmt.execute("comment on domain testint8 is 'jdbc123'").get();
       VxDatabaseMetaData dbmd = con.getMetaData();
-      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", new int[]{Types.DISTINCT, Types.STRUCT});
+      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", new int[]{Types.DISTINCT, Types.STRUCT}).get();
       assertTrue(rs.next().get());
       String typeName;
 
@@ -1028,7 +1028,7 @@ public class VxDatabaseMetaDataTest {
     } finally {
       try {
         VxStatement stmt = con.createStatement();
-        stmt.execute("drop domain testint8");
+        stmt.execute("drop domain testint8").get();
       } catch (Exception ex) {
       }
     }
@@ -1038,10 +1038,10 @@ public class VxDatabaseMetaDataTest {
   public void testGetUDT3() throws Exception {
     try {
       VxStatement stmt = con.createStatement();
-      stmt.execute("create domain testint8 as int8");
-      stmt.execute("comment on domain testint8 is 'jdbc123'");
+      stmt.execute("create domain testint8 as int8").get();
+      stmt.execute("comment on domain testint8 is 'jdbc123'").get();
       VxDatabaseMetaData dbmd = con.getMetaData();
-      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", new int[]{Types.DISTINCT});
+      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", new int[]{Types.DISTINCT}).get();
       assertTrue(rs.next().get());
 
       String cat = rs.getString("type_cat").get();
@@ -1060,7 +1060,7 @@ public class VxDatabaseMetaDataTest {
     } finally {
       try {
         VxStatement stmt = con.createStatement();
-        stmt.execute("drop domain testint8");
+        stmt.execute("drop domain testint8").get();
       } catch (Exception ex) {
       }
     }
@@ -1070,9 +1070,9 @@ public class VxDatabaseMetaDataTest {
   public void testGetUDT4() throws Exception {
     try {
       VxStatement stmt = con.createStatement();
-      stmt.execute("create type testint8 as (i int8)");
+      stmt.execute("create type testint8 as (i int8)").get();
       VxDatabaseMetaData dbmd = con.getMetaData();
-      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", null);
+      VxResultSet rs = dbmd.getUDTs(null, null, "testint8", null).get();
       assertTrue(rs.next().get());
 
       String cat = rs.getString("type_cat").get();
@@ -1090,7 +1090,7 @@ public class VxDatabaseMetaDataTest {
     } finally {
       try {
         VxStatement stmt = con.createStatement();
-        stmt.execute("drop type testint8");
+        stmt.execute("drop type testint8").get();
       } catch (Exception ex) {
       }
     }
@@ -1146,7 +1146,7 @@ public class VxDatabaseMetaDataTest {
     }
 
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getTypeInfo();
+    VxResultSet rs = dbmd.getTypeInfo().get();
     List<String> types = new ArrayList<String>();
 
     while (rs.next().get()) {
@@ -1161,7 +1161,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testTypeInfoSigned() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getTypeInfo();
+    VxResultSet rs = dbmd.getTypeInfo().get();
     while (rs.next().get()) {
       if ("int4".equals(rs.getString("TYPE_NAME"))) {
         assertEquals(false, rs.getBoolean("UNSIGNED_ATTRIBUTE"));
@@ -1176,7 +1176,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testTypeInfoQuoting() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    VxResultSet rs = dbmd.getTypeInfo();
+    VxResultSet rs = dbmd.getTypeInfo().get();
     while (rs.next().get()) {
       if ("int4".equals(rs.getString("TYPE_NAME"))) {
         assertNull(rs.getString("LITERAL_PREFIX"));
@@ -1208,15 +1208,15 @@ public class VxDatabaseMetaDataTest {
       try {
         stmt = con.createStatement();
         stmt.execute(
-            "CREATE TABLE measurement (logdate date not null,peaktemp int,unitsales int ) PARTITION BY RANGE (logdate);");
+            "CREATE TABLE measurement (logdate date not null,peaktemp int,unitsales int ) PARTITION BY RANGE (logdate);").get();
         VxDatabaseMetaData dbmd = con.getMetaData();
-        VxResultSet rs = dbmd.getTables("", "", "measurement", new String[]{"TABLE"});
+        VxResultSet rs = dbmd.getTables("", "", "measurement", new String[]{"TABLE"}).get();
         assertTrue(rs.next().get());
         assertEquals("measurement", rs.getString("table_name"));
 
       } finally {
         if (stmt != null) {
-          stmt.execute("drop table measurement");
+          stmt.execute("drop table measurement").get();
           stmt.close();
         }
       }
@@ -1231,7 +1231,7 @@ public class VxDatabaseMetaDataTest {
         stmt = con.createStatement();
         stmt.execute("CREATE TABLE test_new ("
             + "id int GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,"
-            + "payload text)");
+            + "payload text)").get();
         VxDatabaseMetaData dbmd = con.getMetaData();
         VxResultSet rs = dbmd.getColumns("", "", "test_new", "id");
         assertTrue(rs.next().get());
@@ -1251,7 +1251,7 @@ public class VxDatabaseMetaDataTest {
   @Test
   public void testGetSQLKeywords() throws SQLException, InterruptedException, ExecutionException {
     VxDatabaseMetaData dbmd = con.getMetaData();
-    String keywords = dbmd.getSQLKeywords();
+    String keywords = dbmd.getSQLKeywords().get();
 
     // We don't want SQL:2003 keywords returned, so check for that.
     String sql2003 = "a,abs,absolute,action,ada,add,admin,after,all,allocate,alter,always,and,any,are,"

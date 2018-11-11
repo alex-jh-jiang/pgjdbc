@@ -6,8 +6,6 @@
 package org.postgresql.jdbc;
 
 import org.postgresql.Driver;
-import org.postgresql.core.BaseConnection;
-import org.postgresql.core.BaseStatement;
 import org.postgresql.core.CachedQuery;
 import org.postgresql.core.Field;
 import org.postgresql.core.ParameterList;
@@ -17,16 +15,12 @@ import org.postgresql.core.ResultCursor;
 import org.postgresql.core.ResultHandlerBase;
 import org.postgresql.core.SqlCommand;
 import org.postgresql.core.VxBaseStatement;
-import org.postgresql.core.v3.QueryExecutorImpl;
 import org.postgresql.util.GT;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
 
-//import java.sql.Connection;
-//import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-//import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;

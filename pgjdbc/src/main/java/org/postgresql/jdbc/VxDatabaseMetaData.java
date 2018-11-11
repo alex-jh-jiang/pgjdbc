@@ -25,7 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static com.ea.async.Async.await;
 
 public class VxDatabaseMetaData {
 
@@ -40,7 +43,7 @@ public class VxDatabaseMetaData {
   private int NAMEDATALEN = 0; // length for name datatype
   private int INDEX_MAX_KEYS = 0; // maximum number of keys in an index.
 
-  protected int getMaxIndexKeys() throws SQLException, InterruptedException, ExecutionException {
+  protected CompletableFuture<Integer> getMaxIndexKeys() throws SQLException, InterruptedException, ExecutionException {
     if (INDEX_MAX_KEYS == 0) {
       String sql;
       sql = "SELECT setting FROM pg_catalog.pg_settings WHERE name='max_index_keys'";
@@ -48,24 +51,24 @@ public class VxDatabaseMetaData {
       VxStatement stmt = connection.createStatement();
       VxResultSet rs = null;
       try {
-        rs = stmt.executeQuery(sql).get();
-        if (!rs.next().get()) {
+        rs = await(stmt.executeQuery(sql));
+        if (!await(rs.next())) {
           stmt.close();
           throw new PSQLException(
               GT.tr(
                   "Unable to determine a value for MaxIndexKeys due to missing system catalog data."),
               PSQLState.UNEXPECTED_ERROR);
         }
-        INDEX_MAX_KEYS = rs.getInt(1).get();
+        INDEX_MAX_KEYS = await(rs.getInt(1));
       } finally {
         VxJdbcBlackHole.close(rs);
         VxJdbcBlackHole.close(stmt);
       }
     }
-    return INDEX_MAX_KEYS;
+    return CompletableFuture.completedFuture(INDEX_MAX_KEYS);
   }
 
-  protected int getMaxNameLength() throws SQLException, InterruptedException, ExecutionException {
+  protected CompletableFuture<Integer> getMaxNameLength() throws SQLException, InterruptedException, ExecutionException {
     if (NAMEDATALEN == 0) {
       String sql;
       sql = "SELECT t.typlen FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n "
@@ -74,18 +77,18 @@ public class VxDatabaseMetaData {
       VxStatement stmt = connection.createStatement();
       VxResultSet rs = null;
       try {
-        rs = stmt.executeQuery(sql).get();
-        if (!rs.next().get()) {
+        rs = await(stmt.executeQuery(sql));
+        if (!await(rs.next())) {
           throw new PSQLException(GT.tr("Unable to find name datatype in the system catalogs."),
               PSQLState.UNEXPECTED_ERROR);
         }
-        NAMEDATALEN = rs.getInt("typlen").get();
+        NAMEDATALEN = await(rs.getInt("typlen"));
       } finally {
         VxJdbcBlackHole.close(rs);
         VxJdbcBlackHole.close(stmt);
       }
     }
-    return NAMEDATALEN - 1;
+    return CompletableFuture.completedFuture(NAMEDATALEN - 1);
   }
 
 
@@ -243,7 +246,7 @@ public class VxDatabaseMetaData {
    * @throws ExecutionException 
    * @throws InterruptedException 
    */
-  public String getSQLKeywords() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<String> getSQLKeywords() throws SQLException, InterruptedException, ExecutionException {
     connection.checkClosed();
     if (keywords == null) {
       if (connection.haveMinimumServerVersion(ServerVersion.v9_0)) {
@@ -310,12 +313,12 @@ public class VxDatabaseMetaData {
         VxResultSet rs = null;
         try {
           stmt = connection.createStatement();
-          rs = stmt.executeQuery(sql).get();
-          if (!rs.next().get()) {
+          rs = await(stmt.executeQuery(sql));
+          if (!await(rs.next())) {
             throw new PSQLException(GT.tr("Unable to find keywords in the system catalogs."),
                 PSQLState.UNEXPECTED_ERROR);
           }
-          keywords = rs.getString(1).get();
+          keywords = await(rs.getString(1));
         } finally {
           VxJdbcBlackHole.close(rs);
           VxJdbcBlackHole.close(stmt);
@@ -333,7 +336,7 @@ public class VxDatabaseMetaData {
             + "unencrypted,unlisten,until,vacuum,valid,validator,verbose,volatile";
       }
     }
-    return keywords;
+    return CompletableFuture.completedFuture(keywords);
   }
 
   public String getNumericFunctions() throws SQLException {
@@ -843,7 +846,7 @@ public class VxDatabaseMetaData {
     return 0; // no limit
   }
 
-  public int getMaxColumnNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxColumnNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
@@ -851,7 +854,7 @@ public class VxDatabaseMetaData {
     return 0; // no limit
   }
 
-  public int getMaxColumnsInIndex() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxColumnsInIndex() throws SQLException, InterruptedException, ExecutionException {
     return getMaxIndexKeys();
   }
 
@@ -893,7 +896,7 @@ public class VxDatabaseMetaData {
     return 8192;
   }
 
-  public int getMaxCursorNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxCursorNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
@@ -901,15 +904,15 @@ public class VxDatabaseMetaData {
     return 0; // no limit (larger than an int anyway)
   }
 
-  public int getMaxSchemaNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxSchemaNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
-  public int getMaxProcedureNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxProcedureNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
-  public int getMaxCatalogNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxCatalogNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
@@ -929,7 +932,7 @@ public class VxDatabaseMetaData {
     return 0;
   }
 
-  public int getMaxTableNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxTableNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
@@ -937,7 +940,7 @@ public class VxDatabaseMetaData {
     return 0; // no limit
   }
 
-  public int getMaxUserNameLength() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<Integer> getMaxUserNameLength() throws SQLException, InterruptedException, ExecutionException {
     return getMaxNameLength();
   }
 
@@ -1022,7 +1025,7 @@ public class VxDatabaseMetaData {
     return sb.toString();
   }
 
-  public VxResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern)
+  public CompletableFuture<VxResultSet> getProcedures(String catalog, String schemaPattern, String procedureNamePattern)
       throws SQLException, InterruptedException, ExecutionException {
     String sql;
     sql = "SELECT NULL AS PROCEDURE_CAT, n.nspname AS PROCEDURE_SCHEM, p.proname AS PROCEDURE_NAME, "
@@ -1042,10 +1045,10 @@ public class VxDatabaseMetaData {
     }
     sql += " ORDER BY PROCEDURE_SCHEM, PROCEDURE_NAME, p.oid::text ";
 
-    return createMetaDataStatement().executeQuery(sql).get();
+    return createMetaDataStatement().executeQuery(sql);
   }
 
-  public VxResultSet getProcedureColumns(String catalog, String schemaPattern,
+  public CompletableFuture<VxResultSet> getProcedureColumns(String catalog, String schemaPattern,
       String procedureNamePattern, String columnNamePattern) throws SQLException, InterruptedException, ExecutionException {
     int columns = 20;
 
@@ -1089,8 +1092,8 @@ public class VxDatabaseMetaData {
     byte[] isnullableUnknown = new byte[0];
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
-    while (rs.next().get()) {
+    VxResultSet rs = await(stmt.executeQuery(sql));
+    while (await(rs.next())) {
       byte[] schema = rs.getBytes("nspname");
       byte[] procedureName = rs.getBytes("proname");
       byte[] specificName =
@@ -1241,10 +1244,10 @@ public class VxDatabaseMetaData {
     rs.close();
     stmt.close();
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
-  public VxResultSet getTables(String catalog, String schemaPattern, String tableNamePattern,
+  public CompletableFuture<VxResultSet> getTables(String catalog, String schemaPattern, String tableNamePattern,
                              String[] types) throws SQLException, InterruptedException, ExecutionException {
     String select;
     String orderby;
@@ -1314,7 +1317,7 @@ public class VxDatabaseMetaData {
     }
     String sql = select + orderby;
 
-    return createMetaDataStatement().executeQuery(sql).get();
+    return createMetaDataStatement().executeQuery(sql);
   }
 
   private static final Map<String, Map<String, String>> tableTypeClauses;
@@ -1396,11 +1399,11 @@ public class VxDatabaseMetaData {
     ht.put("NOSCHEMAS", "c.relkind = 'm'");
   }
 
-  public VxResultSet getSchemas() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<VxResultSet> getSchemas() throws SQLException, InterruptedException, ExecutionException {
     return getSchemas(null, null);
   }
 
-  public VxResultSet getSchemas(String catalog, String schemaPattern) throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<VxResultSet> getSchemas(String catalog, String schemaPattern) throws SQLException, InterruptedException, ExecutionException {
     String sql;
     sql = "SELECT nspname AS TABLE_SCHEM, NULL AS TABLE_CATALOG FROM pg_catalog.pg_namespace "
           + " WHERE nspname <> 'pg_toast' AND (nspname !~ '^pg_temp_' "
@@ -1411,7 +1414,7 @@ public class VxDatabaseMetaData {
     }
     sql += " ORDER BY TABLE_SCHEM";
 
-    return createMetaDataStatement().executeQuery(sql).get();
+    return createMetaDataStatement().executeQuery(sql);
   }
 
   /**
@@ -1531,8 +1534,8 @@ public class VxDatabaseMetaData {
     sql += " ORDER BY nspname,c.relname,attnum ";
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
-    while (rs.next().get()) {
+    VxResultSet rs = await(stmt.executeQuery(sql));
+    while (await(rs.next())) {
       byte[][] tuple = new byte[numberOfFields][];
       int typeOid = (int) rs.getLong("atttypid").get().intValue();
       int typeMod = rs.getInt("atttypmod").get();
@@ -1542,7 +1545,7 @@ public class VxDatabaseMetaData {
       tuple[2] = rs.getBytes("relname"); // Table name
       tuple[3] = rs.getBytes("attname"); // Column name
 
-      String typtype = rs.getString("typtype").get();
+      String typtype = await(rs.getString("typtype"));
       int sqlType;
       if ("c".equals(typtype)) {
         sqlType = Types.STRUCT;
@@ -1625,7 +1628,7 @@ public class VxDatabaseMetaData {
     return (createMetaDataStatement()).createDriverResultSet(f, v);
   }
 
-  public VxResultSet getColumnPrivileges(String catalog, String schema, String table,
+  public CompletableFuture<VxResultSet> getColumnPrivileges(String catalog, String schema, String table,
       String columnNamePattern) throws SQLException, InterruptedException, ExecutionException {
     Field[] f = new Field[8];
     List<byte[][]> v = new ArrayList<byte[][]>();
@@ -1663,8 +1666,8 @@ public class VxDatabaseMetaData {
     sql += " ORDER BY attname ";
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
-    while (rs.next().get()) {
+    VxResultSet rs = await(stmt.executeQuery(sql));
+    while (await(rs.next())) {
       byte[] schemaName = rs.getBytes("nspname");
       byte[] tableName = rs.getBytes("relname");
       byte[] column = rs.getBytes("attname");
@@ -1706,10 +1709,10 @@ public class VxDatabaseMetaData {
     rs.close();
     stmt.close();
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
-  public VxResultSet getTablePrivileges(String catalog, String schemaPattern,
+  public CompletableFuture<VxResultSet> getTablePrivileges(String catalog, String schemaPattern,
       String tableNamePattern) throws SQLException, InterruptedException, ExecutionException {
     Field[] f = new Field[7];
     List<byte[][]> v = new ArrayList<byte[][]>();
@@ -1739,12 +1742,12 @@ public class VxDatabaseMetaData {
     sql += " ORDER BY nspname, relname ";
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
-    while (rs.next().get()) {
+    VxResultSet rs = await(stmt.executeQuery(sql));
+    while (await(rs.next())) {
       byte[] schema = rs.getBytes("nspname");
       byte[] table = rs.getBytes("relname");
-      String owner = rs.getString("rolname").get();
-      String acl = rs.getString("relacl").get();
+      String owner = await(rs.getString("rolname"));
+      String acl = await(rs.getString("relacl"));
       Map<String, Map<String, List<String[]>>> permissions = parseACL(acl, owner);
       String[] permNames = permissions.keySet().toArray(new String[0]);
       Arrays.sort(permNames);
@@ -1775,7 +1778,7 @@ public class VxDatabaseMetaData {
     rs.close();
     stmt.close();
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
   /**
@@ -1943,7 +1946,7 @@ public class VxDatabaseMetaData {
     return privileges;
   }
 
-  public VxResultSet getBestRowIdentifier(String catalog, String schema, String table,
+  public CompletableFuture<VxResultSet> getBestRowIdentifier(String catalog, String schema, String table,
       int scope, boolean nullable) throws SQLException, InterruptedException, ExecutionException {
     Field[] f = new Field[8];
     List<byte[][]> v = new ArrayList<byte[][]>(); // The new ResultSet tuple stuff
@@ -1982,8 +1985,8 @@ public class VxDatabaseMetaData {
         + " ORDER BY a.attnum ";
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
-    while (rs.next().get()) {
+    VxResultSet rs = await(stmt.executeQuery(sql));
+    while (await(rs.next())) {
       byte[][] tuple = new byte[8][];
       int typeOid = (int) rs.getLong("atttypid").get().intValue();
       int typeMod = rs.getInt("atttypmod").get();
@@ -2007,7 +2010,7 @@ public class VxDatabaseMetaData {
     rs.close();
     stmt.close();
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
   public VxResultSet getVersionColumns(String catalog, String schema, String table)
@@ -2052,7 +2055,7 @@ public class VxDatabaseMetaData {
     return (createMetaDataStatement()).createDriverResultSet(f, v);
   }
 
-  public VxResultSet getPrimaryKeys(String catalog, String schema, String table)
+  public CompletableFuture<VxResultSet> getPrimaryKeys(String catalog, String schema, String table)
       throws SQLException, InterruptedException, ExecutionException {
     String sql;
     sql = "SELECT NULL AS TABLE_CAT, n.nspname AS TABLE_SCHEM, "
@@ -2079,7 +2082,7 @@ public class VxDatabaseMetaData {
     sql += " AND i.indisprimary "
         + " ORDER BY table_name, pk_name, key_seq";
 
-    return createMetaDataStatement().executeQuery(sql).get();
+    return CompletableFuture.completedFuture(createMetaDataStatement().executeQuery(sql).get());
   }
 
   /**
@@ -2194,7 +2197,7 @@ public class VxDatabaseMetaData {
         foreignSchema, foreignTable);
   }
 
-  public VxResultSet getTypeInfo() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<VxResultSet> getTypeInfo() throws SQLException, InterruptedException, ExecutionException {
 
     Field[] f = new Field[18];
     List<byte[][]> v = new ArrayList<byte[][]>(); // The new ResultSet tuple stuff
@@ -2224,7 +2227,7 @@ public class VxDatabaseMetaData {
           + " WHERE n.nspname  != 'pg_toast'";
 
     VxStatement stmt = connection.createStatement();
-    VxResultSet rs = stmt.executeQuery(sql).get();
+    VxResultSet rs = await(stmt.executeQuery(sql));
     // cache some results, this will keep memory usage down, and speed
     // things up a little.
     byte[] bZero = connection.encodeString("0");
@@ -2291,7 +2294,7 @@ public class VxDatabaseMetaData {
     rs.close();
     stmt.close();
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
   public VxResultSet getIndexInfo(String catalog, String schema, String tableName,
@@ -2464,7 +2467,7 @@ public class VxDatabaseMetaData {
     return true;
   }
 
-  public VxResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern,
+  public CompletableFuture<VxResultSet> getUDTs(String catalog, String schemaPattern, String typeNamePattern,
       int[] types) throws SQLException, InterruptedException, ExecutionException {
     String sql = "select "
         + "null as type_cat, n.nspname as type_schem, t.typname as type_name,  null as class_name, "
@@ -2532,7 +2535,7 @@ public class VxDatabaseMetaData {
     }
     sql += toAdd.toString();
     sql += " order by data_type, type_schem, type_name";
-    return createMetaDataStatement().executeQuery(sql).get();
+    return createMetaDataStatement().executeQuery(sql);
   }
 
 
@@ -2565,7 +2568,7 @@ public class VxDatabaseMetaData {
     return false;
   }
 
-  public VxResultSet getClientInfoProperties() throws SQLException, InterruptedException, ExecutionException {
+  public CompletableFuture<VxResultSet> getClientInfoProperties() throws SQLException, InterruptedException, ExecutionException {
     Field[] f = new Field[4];
     f[0] = new Field("NAME", Oid.VARCHAR);
     f[1] = new Field("MAX_LEN", Oid.INT4);
@@ -2577,14 +2580,14 @@ public class VxDatabaseMetaData {
     if (connection.haveMinimumServerVersion(ServerVersion.v9_0)) {
       byte[][] tuple = new byte[4][];
       tuple[0] = connection.encodeString("ApplicationName");
-      tuple[1] = connection.encodeString(Integer.toString(getMaxNameLength()));
+      tuple[1] = connection.encodeString(Integer.toString(await(getMaxNameLength())));
       tuple[2] = connection.encodeString("");
       tuple[3] = connection
           .encodeString("The name of the application currently utilizing the connection.");
       v.add(tuple);
     }
 
-    return (createMetaDataStatement()).createDriverResultSet(f, v);
+    return CompletableFuture.completedFuture((createMetaDataStatement()).createDriverResultSet(f, v));
   }
 
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
@@ -2637,7 +2640,7 @@ public class VxDatabaseMetaData {
     return createMetaDataStatement().executeQuery(sql).get();
   }
 
-  public VxResultSet getFunctionColumns(String catalog, String schemaPattern,
+  public CompletableFuture<VxResultSet> getFunctionColumns(String catalog, String schemaPattern,
       String functionNamePattern, String columnNamePattern)
       throws SQLException, InterruptedException, ExecutionException {
     return getProcedureColumns(catalog, schemaPattern, functionNamePattern, columnNamePattern);

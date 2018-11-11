@@ -141,7 +141,7 @@ public class VxCopyBothResponseTest {
     LogSequenceNumber startLsn = getCurrentLSN();
 
     VxStatement st = sqlConnection.createStatement();
-    st.execute("insert into testreplication(name) values('testing get changes')");
+    st.execute("insert into testreplication(name) values('testing get changes')").get();
     st.close();
 
     CopyDual copyDual =

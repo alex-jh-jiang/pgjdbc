@@ -146,7 +146,7 @@ public class VxTimestampTest extends VxBaseTest4 {
     }
 
     VxStatement stmt = con.createStatement();
-    stmt.executeUpdate(VxTestUtil.insertSQL(table, "'" + strValue + "'"));
+    stmt.executeUpdate(VxTestUtil.insertSQL(table, "'" + strValue + "'")).get();
     stmt.close();
 
     VxPreparedStatement ps = con.prepareStatement(VxTestUtil.insertSQL(table, "?"));
@@ -189,51 +189,51 @@ public class VxTimestampTest extends VxBaseTest4 {
 
     // Insert the three timestamp values in raw pg format
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS1WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS2WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS3WTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate1.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate2.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate3.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate4.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime1.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime2.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime3.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime4.getTime())) + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE, "'" + TS4WTZ_PGFORMAT + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate1.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate2.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate3.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate4.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime1.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime2.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime3.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime4.getTime())) + "'")).get());
 
 
     // Fall through helper
     timestampTestWTZ();
 
-    assertEquals(20, stmt.executeUpdate("DELETE FROM " + TSWTZ_TABLE));
+    assertEquals(20, (Object)stmt.executeUpdate("DELETE FROM " + TSWTZ_TABLE).get());
 
     stmt.close();
   }
@@ -251,60 +251,60 @@ public class VxTimestampTest extends VxBaseTest4 {
     VxPreparedStatement pstmt = con.prepareStatement(VxTestUtil.insertSQL(TSWTZ_TABLE, "?"));
 
     pstmt.setTimestamp(1, TS1WTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS2WTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS3WTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS4WTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Timestamp
     pstmt.setObject(1, TS1WTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS2WTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS3WTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS4WTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With Strings
     pstmt.setObject(1, TS1WTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS2WTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS3WTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS4WTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Date
     pstmt.setObject(1, tmpDate1, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate2, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate3, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate4, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Time
     pstmt.setObject(1, tmpTime1, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime2, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime3, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime4, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     // Fall through helper
     timestampTestWTZ();
 
-    assertEquals(20, stmt.executeUpdate("DELETE FROM " + TSWTZ_TABLE));
+    assertEquals(20, (Object)stmt.executeUpdate("DELETE FROM " + TSWTZ_TABLE).get());
 
     pstmt.close();
     stmt.close();
@@ -326,106 +326,106 @@ public class VxTimestampTest extends VxBaseTest4 {
 
     // Insert the three timestamp values in raw pg format
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")).get());
 
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")).get());
 
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS1WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS2WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS3WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS4WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS5WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS6WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS7WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS8WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS9WOTZ_PGFORMAT + "'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE, "'" + TS10WOTZ_PGFORMAT + "'")).get());
 
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate1WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate2WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate3WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate4WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate5WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate6WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate7WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate8WOTZ.getTime())) + "'")));
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate1WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate2WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate3WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate4WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate5WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate6WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate7WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpDate8WOTZ.getTime())) + "'")).get());
 
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime1WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime2WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime3WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime4WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime5WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime6WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime7WOTZ.getTime())) + "'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
-        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime8WOTZ.getTime())) + "'")));
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime1WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime2WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime3WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime4WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime5WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime6WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime7WOTZ.getTime())) + "'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL(TSWOTZ_TABLE,
+        "'" + tsu.toString(null, new java.sql.Timestamp(tmpTime8WOTZ.getTime())) + "'")).get());
 
     // Fall through helper
     timestampTestWOTZ();
 
-    assertEquals(46, stmt.executeUpdate("DELETE FROM " + TSWOTZ_TABLE));
+    assertEquals(46, (Object)stmt.executeUpdate("DELETE FROM " + TSWOTZ_TABLE).get());
 
     stmt.close();
   }
@@ -445,118 +445,118 @@ public class VxTimestampTest extends VxBaseTest4 {
     VxPreparedStatement pstmt = con.prepareStatement(VxTestUtil.insertSQL(TSWOTZ_TABLE, "?"));
 
     pstmt.setTimestamp(1, TS1WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS2WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS3WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS4WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS5WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS6WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS7WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS8WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS9WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     pstmt.setTimestamp(1, TS10WOTZ);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Timestamp
     pstmt.setObject(1, TS1WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS2WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS3WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS4WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS5WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS6WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS7WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS8WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS9WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS10WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With Strings
     pstmt.setObject(1, TS1WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS2WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS3WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS4WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS5WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS6WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS7WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS8WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS9WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, TS10WOTZ_PGFORMAT, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Date
     pstmt.setObject(1, tmpDate1WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate2WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate3WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate4WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate5WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate6WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate7WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpDate8WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     // With java.sql.Time
     pstmt.setObject(1, tmpTime1WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime2WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime3WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime4WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime5WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime6WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime7WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     pstmt.setObject(1, tmpTime8WOTZ, Types.TIMESTAMP);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
     // Fall through helper
     timestampTestWOTZ();
 
-    assertEquals(46, stmt.executeUpdate("DELETE FROM " + TSWOTZ_TABLE));
+    assertEquals(46, (Object)stmt.executeUpdate("DELETE FROM " + TSWOTZ_TABLE).get());
 
     pstmt.close();
     stmt.close();

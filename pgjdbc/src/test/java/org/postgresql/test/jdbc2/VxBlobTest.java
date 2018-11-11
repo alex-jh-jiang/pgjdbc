@@ -73,28 +73,28 @@ public class VxBlobTest {
     VxPreparedStatement pstmt = con.prepareStatement("INSERT INTO testblob(lo) VALUES (?)");
 
     pstmt.setBlob(1, (Blob) null);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.setNull(1, Types.BLOB);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.setObject(1, null, Types.BLOB);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.setClob(1, (Clob) null);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.setNull(1, Types.CLOB);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
 
     pstmt.setObject(1, null, Types.CLOB);
-    pstmt.executeUpdate();
+    pstmt.executeUpdate().get();
   }
 
   @Test
   public void testSet() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("INSERT INTO testblob(id,lo) VALUES ('1', lo_creat(-1))");
+    stmt.execute("INSERT INTO testblob(id,lo) VALUES ('1', lo_creat(-1))").get();
     VxResultSet rs = stmt.executeQuery("SELECT lo FROM testblob").get();
     assertTrue(rs.next().get());
 
@@ -103,32 +103,32 @@ public class VxBlobTest {
     Blob blob = rs.getBlob(1).get();
     pstmt.setString(1, "setObjectTypeBlob");
     pstmt.setObject(2, blob, Types.BLOB);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     blob = rs.getBlob(1).get();
     pstmt.setString(1, "setObjectBlob");
     pstmt.setObject(2, blob);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     blob = rs.getBlob(1).get();
     pstmt.setString(1, "setBlob");
     pstmt.setBlob(2, blob);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     Clob clob = rs.getClob(1).get();
     pstmt.setString(1, "setObjectTypeClob");
     pstmt.setObject(2, clob, Types.CLOB);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     clob = rs.getClob(1).get();
     pstmt.setString(1, "setObjectClob");
     pstmt.setObject(2, clob);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
 
     clob = rs.getClob(1).get();
     pstmt.setString(1, "setClob");
     pstmt.setClob(2, clob);
-    assertEquals(1, pstmt.executeUpdate());
+    assertEquals(1, (Object)pstmt.executeUpdate().get());
   }
 
   /*
@@ -255,7 +255,7 @@ public class VxBlobTest {
     }
 
     VxStatement stmt = con.createStatement();
-    stmt.execute("INSERT INTO testblob(id,lo) VALUES ('1', lo_creat(-1))");
+    stmt.execute("INSERT INTO testblob(id,lo) VALUES ('1', lo_creat(-1))").get();
     VxResultSet rs = stmt.executeQuery("SELECT lo FROM testblob").get();
     assertTrue(rs.next().get());
 
@@ -270,7 +270,7 @@ public class VxBlobTest {
    * works, and we can use it as a base to test the new methods.
    */
   private long uploadFile(String file, int method) throws Exception {
-    LargeObjectManager lom = ((org.postgresql.PGConnection) con).getLargeObjectAPI();
+    LargeObjectManager lom = con.getLargeObjectAPI();
 
     InputStream fis = getClass().getResourceAsStream(file);
 
@@ -311,8 +311,8 @@ public class VxBlobTest {
 
     // Insert into the table
     VxStatement st = con.createStatement();
-    st.executeUpdate(VxTestUtil.insertSQL("testblob", "id,lo", "'" + file + "'," + oid));
-    con.commit();
+    st.executeUpdate(VxTestUtil.insertSQL("testblob", "id,lo", "'" + file + "'," + oid)).get();
+    con.commit().get();
     st.close();
 
     return oid;

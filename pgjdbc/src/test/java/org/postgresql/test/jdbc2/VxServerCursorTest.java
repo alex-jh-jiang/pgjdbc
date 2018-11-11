@@ -30,8 +30,14 @@ public class VxServerCursorTest extends VxBaseTest4 {
 
   @Override
   public void tearDown() throws SQLException {
-    con.rollback();
-    con.setAutoCommit(true);
+    
+    try {
+      con.rollback().get();
+      con.setAutoCommit(true).get();
+    } catch (InterruptedException | ExecutionException e1) {
+      // TODO Auto-generated catch block
+      throw new SQLException(e1);
+    }
     try {
       VxTestUtil.dropTable(con, "test_fetch");
     } catch (InterruptedException | ExecutionException e) {
@@ -46,9 +52,9 @@ public class VxServerCursorTest extends VxBaseTest4 {
     for (int i = 0; i < count; ++i) {
       stmt.setInt(1, i + 1);
       stmt.setBytes(2, DATA_STRING.getBytes("UTF8"));
-      stmt.executeUpdate();
+      stmt.executeUpdate().get();
     }
-    con.commit();
+    con.commit().get();
   }
 
   // Test regular cursor fetching
@@ -59,7 +65,7 @@ public class VxServerCursorTest extends VxBaseTest4 {
 
     VxPreparedStatement stmt =
         con.prepareStatement("declare test_cursor cursor for select * from test_fetch");
-    stmt.execute();
+    stmt.execute().get();
 
     stmt = con.prepareStatement("fetch forward from test_cursor");
     VxResultSet rs = stmt.executeQuery().get();
@@ -80,7 +86,7 @@ public class VxServerCursorTest extends VxBaseTest4 {
 
     VxPreparedStatement stmt =
         con.prepareStatement("declare test_cursor binary cursor for select * from test_fetch");
-    stmt.execute();
+    stmt.execute().get();
 
     stmt = con.prepareStatement("fetch forward from test_cursor");
     VxResultSet rs = stmt.executeQuery().get();

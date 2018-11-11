@@ -52,7 +52,7 @@ public class VxUpsertTest extends VxBaseTest4 {
 
     VxTestUtil.createTempTable(con, "test_statement", "i int primary key, t varchar(5)");
     VxStatement stmt = con.createStatement();
-    stmt.executeUpdate("INSERT INTO test_statement(i, t) VALUES (42, '42')");
+    stmt.executeUpdate("INSERT INTO test_statement(i, t) VALUES (42, '42')").get();
     VxTestUtil.closeQuietly(stmt);
   }
 

@@ -68,7 +68,7 @@ public class VxTimeTest {
     // set the time to midnight to make this easy
     assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'00:00:00','00:00:00'")).get());
     assertEquals(1,
-        stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'00:00:00.1','00:00:00.01'")));
+        (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'00:00:00.1','00:00:00.01'")).get());
     assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime",
         "CAST(CAST(now() AS timestamp without time zone) AS time),now()")).get());
     VxResultSet rs = stmt.executeQuery(VxTestUtil.selectSQL("testtime", "tm,tz")).get();
@@ -126,17 +126,17 @@ public class VxTimeTest {
    * Tests the time methods in ResultSet
    */
   @Test
-  public void testGetTime() throws SQLException {
+  public void testGetTime() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
 
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'01:02:03'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'23:59:59'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'12:00:00'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'05:15:21'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'16:21:51'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'12:15:12'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'22:12:01'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'08:46:44'")));
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'01:02:03'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'23:59:59'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'12:00:00'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'05:15:21'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'16:21:51'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'12:15:12'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'22:12:01'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testtime", "'08:46:44'")).get());
 
 
     // Fall through helper
@@ -147,7 +147,7 @@ public class VxTimeTest {
       e.printStackTrace();
     }
 
-    assertEquals(8, stmt.executeUpdate("DELETE FROM testtime"));
+    assertEquals(8, (Object)stmt.executeUpdate("DELETE FROM testtime").get());
     stmt.close();
   }
 
@@ -160,34 +160,34 @@ public class VxTimeTest {
     VxStatement stmt = con.createStatement();
 
     ps.setTime(1, makeTime(1, 2, 3));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setTime(1, makeTime(23, 59, 59));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, Time.valueOf("12:00:00"), java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, Time.valueOf("05:15:21"), java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, Time.valueOf("16:21:51"), java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, Time.valueOf("12:15:12"), java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "22:12:1", java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "8:46:44", java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "5:1:2-03", java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "23:59:59+11", java.sql.Types.TIME);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     // Need to let the test know this one has extra test cases.
     testSetTime = true;
@@ -195,7 +195,7 @@ public class VxTimeTest {
     timeTest();
     testSetTime = false;
 
-    assertEquals(10, stmt.executeUpdate("DELETE FROM testtime"));
+    assertEquals(10, (Object)stmt.executeUpdate("DELETE FROM testtime").get());
     stmt.close();
     ps.close();
   }

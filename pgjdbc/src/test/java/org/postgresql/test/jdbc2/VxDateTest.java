@@ -49,29 +49,29 @@ public class VxDateTest {
   public void testGetDate() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
 
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1950-02-07'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1970-06-02'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1999-08-11'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2001-02-13'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1950-04-02'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1970-11-30'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1988-01-01'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2003-07-09'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1934-02-28'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1969-04-03'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1982-08-03'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2012-03-15'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1912-05-01'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1971-12-15'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1984-12-03'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2000-01-01'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'3456-01-01'")));
-    assertEquals(1, stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'0101-01-01 BC'")));
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1950-02-07'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1970-06-02'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1999-08-11'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2001-02-13'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1950-04-02'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1970-11-30'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1988-01-01'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2003-07-09'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1934-02-28'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1969-04-03'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1982-08-03'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2012-03-15'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1912-05-01'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1971-12-15'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'1984-12-03'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'2000-01-01'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'3456-01-01'")).get());
+    assertEquals(1, (Object)stmt.executeUpdate(VxTestUtil.insertSQL("testdate", "'0101-01-01 BC'")).get());
 
     /* dateTest() contains all of the tests */
     dateTest();
 
-    assertEquals(18, stmt.executeUpdate("DELETE FROM " + "testdate"));
+    assertEquals(18, (Object)stmt.executeUpdate("DELETE FROM " + "testdate").get());
     stmt.close();
   }
 
@@ -84,65 +84,65 @@ public class VxDateTest {
     VxPreparedStatement ps = con.prepareStatement(VxTestUtil.insertSQL("testdate", "?"));
 
     ps.setDate(1, makeDate(1950, 2, 7));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setDate(1, makeDate(1970, 6, 2));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setDate(1, makeDate(1999, 8, 11));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setDate(1, makeDate(2001, 2, 13));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Timestamp.valueOf("1950-04-02 12:00:00"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Timestamp.valueOf("1970-11-30 3:00:00"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Timestamp.valueOf("1988-01-01 13:00:00"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Timestamp.valueOf("2003-07-09 12:00:00"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "1934-02-28", java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "1969-04-03", java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "1982-08-03", java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, "2012-03-15", java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Date.valueOf("1912-05-01"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Date.valueOf("1971-12-15"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Date.valueOf("1984-12-03"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Date.valueOf("2000-01-01"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.setObject(1, java.sql.Date.valueOf("3456-01-01"), java.sql.Types.DATE);
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     // We can't use valueOf on BC dates.
     ps.setObject(1, makeDate(-100, 1, 1));
-    assertEquals(1, ps.executeUpdate());
+    assertEquals(1, (Object)ps.executeUpdate().get());
 
     ps.close();
 
     dateTest();
 
-    assertEquals(18, stmt.executeUpdate("DELETE FROM testdate"));
+    assertEquals(18, (Object)stmt.executeUpdate("DELETE FROM testdate").get());
     stmt.close();
   }
 

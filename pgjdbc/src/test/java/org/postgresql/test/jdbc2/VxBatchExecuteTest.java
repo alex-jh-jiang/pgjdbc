@@ -74,24 +74,29 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     // not an error if it doesn't exist.
     VxTestUtil.createTable(con, "testbatch", "pk INTEGER, col1 INTEGER");
 
-    stmt.executeUpdate("INSERT INTO testbatch VALUES (1, 0)");
+    stmt.executeUpdate("INSERT INTO testbatch VALUES (1, 0)").get();
 
     VxTestUtil.createTable(con, "prep", "a integer, b integer, d date");
 
     VxTestUtil.createTable(con, "batchUpdCnt", "id varchar(512) primary key, data varchar(512)");
-    stmt.executeUpdate("INSERT INTO batchUpdCnt(id) VALUES ('key-2')");
+    stmt.executeUpdate("INSERT INTO batchUpdCnt(id) VALUES ('key-2')").get();
 
     stmt.close();
 
     // Generally recommended with batch updates. By default we run all
     // tests in this test case with autoCommit disabled.
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
   }
 
   // Tear down the fixture for this test case.
   @Override
   public void tearDown() throws SQLException {
-    con.setAutoCommit(true);
+    try {
+      con.setAutoCommit(true).get();
+    } catch (InterruptedException | ExecutionException e1) {
+      // TODO Auto-generated catch block
+      throw new SQLException(e1);
+    }
 
     try {
       VxTestUtil.dropTable(con, "testbatch");
@@ -187,7 +192,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     assertCol1HasValue(0);
     stmt.executeBatch().get();
     assertCol1HasValue(4);
-    con.commit();
+    con.commit().get();
     assertCol1HasValue(4);
 
     stmt.close();
@@ -266,7 +271,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     }
 
     if (!con.getAutoCommit()) {
-      con.commit();
+      con.commit().get();
     }
 
     int newValue = getCol1Value();
@@ -344,10 +349,10 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     pstmt.executeBatch().get();
     assertCol1HasValue(10);
 
-    con.commit();
+    con.commit().get();
     assertCol1HasValue(10);
 
-    con.rollback();
+    con.rollback().get();
     assertCol1HasValue(10);
 
     pstmt.close();
@@ -360,7 +365,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     stmt.addBatch("UPDATE testbatch SET col1 = col1 + 1 WHERE pk = 1");
     stmt.addBatch("UPDATE testbatch SET col1 = col1 + 2 WHERE pk = 1");
     stmt.executeBatch().get();
-    con.rollback();
+    con.rollback().get();
     assertCol1HasValue(0);
 
     stmt.addBatch("UPDATE testbatch SET col1 = col1 + 4 WHERE pk = 1");
@@ -376,9 +381,9 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
     Assert.assertEquals(1, updateCounts[1]);
 
     assertCol1HasValue(12);
-    con.commit();
+    con.commit().get();
     assertCol1HasValue(12);
-    con.rollback();
+    con.rollback().get();
     assertCol1HasValue(12);
 
     VxTestUtil.closeQuietly(stmt);
@@ -398,7 +403,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
   @Test
   public void testBatchEscapeProcessing() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("CREATE TEMP TABLE batchescape (d date)");
+    stmt.execute("CREATE TEMP TABLE batchescape (d date)").get();
 
     stmt.addBatch("INSERT INTO batchescape (d) VALUES ({d '2007-11-20'})");
     stmt.executeBatch().get();
@@ -421,9 +426,9 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
   @Test
   public void testBatchWithEmbeddedNulls() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
-    stmt.execute("CREATE TEMP TABLE batchstring (a text)");
+    stmt.execute("CREATE TEMP TABLE batchstring (a text)").get();
 
-    con.commit();
+    con.commit().get();
 
     VxPreparedStatement pstmt = con.prepareStatement("INSERT INTO batchstring VALUES (?)");
 
@@ -437,7 +442,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
       pstmt.executeBatch().get();
       Assert.fail("Should have thrown an exception.");
     } catch (SQLException sqle) {
-      con.rollback();
+      con.rollback().get();
     }
     pstmt.close();
 
@@ -451,7 +456,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
   public void testMixedBatch() throws SQLException, InterruptedException, ExecutionException {
     try {
       VxStatement st = con.createStatement();
-      st.executeUpdate("DELETE FROM prep;");
+      st.executeUpdate("DELETE FROM prep;").get();
       st.close();
 
       st = con.createStatement();
@@ -521,10 +526,10 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
 
     try {
       VxStatement setup = con.createStatement();
-      setup.execute("DROP TABLE IF EXISTS mixednulltest;");
+      setup.execute("DROP TABLE IF EXISTS mixednulltest;").get();
       // It's significant that "value' is 'text' not 'varchar' here;
       // if 'varchar' is used then everything works fine.
-      setup.execute("CREATE TABLE mixednulltest (key serial primary key, value text);");
+      setup.execute("CREATE TABLE mixednulltest (key serial primary key, value text);").get();
       setup.close();
 
       // If the parameter is given as ?::varchar then this issue
@@ -545,7 +550,7 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
         st.setObject(1, val);
         st.addBatch();
       }
-      st.executeBatch();
+      st.executeBatch().get();
       VxResultSet rs = st.getGeneratedKeys();
       for (int i = 1; i <= testData.length; i++) {
         rs.next().get();
@@ -615,7 +620,12 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
         ps.setNull(1, Types.SMALLINT);
         ps.setObject(2, new Date(42));
         ps.addBatch();
-        ps.executeBatch();
+        try {
+          ps.executeBatch().get();
+        } catch (InterruptedException | ExecutionException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
       ps.setObject(1, new Double(43));
@@ -624,7 +634,12 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
       ps.setNull(1, Types.SMALLINT);
       ps.setObject(2, new Date(44));
       ps.addBatch();
-      ps.executeBatch();
+      try {
+        ps.executeBatch().get();
+      } catch (InterruptedException | ExecutionException e2) {
+        // TODO Auto-generated catch block
+        e2.printStackTrace();
+      }
 
       ps.setObject(1, new Double(45));
       ps.setObject(2, new Date(45)); // <-- this causes "oid of bind unknown, send Describe"
@@ -637,14 +652,24 @@ public class VxBatchExecuteTest extends VxBaseTest4 {
       // however in reality the VxStatement is prepared for (smallint, date) types.
 
       ps.addBatch();
-      ps.executeBatch();
+      try {
+        ps.executeBatch().get();
+      } catch (InterruptedException | ExecutionException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
 
       // This execution with (double, unknown) passes isPreparedForTypes check, and causes
       // the failure
       ps.setObject(1, new Double(47));
       ps.setObject(2, new Date(47));
       ps.addBatch();
-      ps.executeBatch();
+      try {
+        ps.executeBatch().get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     } catch (BatchUpdateException e) {
       throw e.getNextException();
     } finally {
@@ -744,7 +769,12 @@ org.postgresql.util.PSQLException: ERROR: incorrect binary data format in bind p
   public void testBatchWithAlternatingTypes() throws SQLException {
     try {
       VxStatement s = con.createStatement();
-      s.execute("BEGIN");
+      try {
+        s.execute("BEGIN").get();
+      } catch (InterruptedException | ExecutionException e1) {
+        // TODO Auto-generated catch block
+        throw new SQLException(e1);
+      }
       VxPreparedStatement ps;
       ps = con.prepareStatement("insert into prep(a,b)  values(?::int4,?)");
       ps.setInt(1, 2);
@@ -757,13 +787,28 @@ org.postgresql.util.PSQLException: ERROR: incorrect binary data format in bind p
       ps.setString(1, "1");
       ps.setInt(2, 2);
       ps.addBatch();
-      ps.executeBatch();
+      try {
+        ps.executeBatch().get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       ps.setString(1, "2");
       ps.setInt(2, 2);
       ps.addBatch();
-      ps.executeBatch();
+      try {
+        ps.executeBatch().get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       ps.close();
-      s.execute("COMMIT");
+      try {
+        s.execute("COMMIT").get();
+      } catch (InterruptedException | ExecutionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     } catch (BatchUpdateException e) {
       throw e.getNextException();
     }

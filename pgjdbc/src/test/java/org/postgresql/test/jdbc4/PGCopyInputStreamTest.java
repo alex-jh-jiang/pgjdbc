@@ -51,8 +51,8 @@ public class PGCopyInputStreamTest {
     insertSomeData();
 
     try {
-		sut = new PGCopyInputStream((PGConnection) _conn,
-		    "COPY cpinstreamtest (i) TO STDOUT WITH " + copyParams);
+		sut = PGCopyInputStream.getPGCopyInputStreamInstance((PGConnection) _conn,
+		    "COPY cpinstreamtest (i) TO STDOUT WITH " + copyParams).get();
 	} catch (InterruptedException | ExecutionException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -69,8 +69,8 @@ public class PGCopyInputStreamTest {
     insertSomeData();
 
     try {
-		sut = new PGCopyInputStream((PGConnection) _conn,
-		    "COPY (select i from cpinstreamtest order by i asc) TO STDOUT WITH " + copyParams);
+		sut = PGCopyInputStream.getPGCopyInputStreamInstance((PGConnection) _conn,
+		    "COPY (select i from cpinstreamtest order by i asc) TO STDOUT WITH " + copyParams).get();
 	} catch (InterruptedException | ExecutionException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -93,8 +93,8 @@ public class PGCopyInputStreamTest {
     insertSomeData();
 
     try {
-		sut = new PGCopyInputStream((PGConnection) _conn,
-		    "COPY (select i from cpinstreamtest order by i asc) TO STDOUT WITH " + copyParams);
+		sut = PGCopyInputStream.getPGCopyInputStreamInstance((PGConnection) _conn,
+		    "COPY (select i from cpinstreamtest order by i asc) TO STDOUT WITH " + copyParams).get();
 	} catch (InterruptedException | ExecutionException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

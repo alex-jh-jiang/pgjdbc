@@ -72,12 +72,12 @@ public class VxRefCursorTest extends VxBaseTest4 {
     // Create the functions.
     stmt.execute("CREATE OR REPLACE FUNCTION testspg__getRefcursor () RETURNS refcursor AS '"
         + "declare v_resset refcursor; begin open v_resset for select id from testrs order by id; "
-        + "return v_resset; end;' LANGUAGE plpgsql;");
+        + "return v_resset; end;' LANGUAGE plpgsql;").get();
     stmt.execute("CREATE OR REPLACE FUNCTION testspg__getEmptyRefcursor () RETURNS refcursor AS '"
         + "declare v_resset refcursor; begin open v_resset for select id from testrs where id < 1 order by id; "
-        + "return v_resset; end;' LANGUAGE plpgsql;");
+        + "return v_resset; end;' LANGUAGE plpgsql;").get();
     stmt.close();
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
   }
 
   @Override
@@ -106,7 +106,7 @@ public class VxRefCursorTest extends VxBaseTest4 {
     assumeCallableStatementsSupported();
     VxCallableStatement call = con.prepareCall("{ ? = call testspg__getRefcursor () }");
     call.registerOutParameter(1, cursorType);
-    call.execute();
+    call.execute().get();
     VxResultSet rs = (VxResultSet) call.getObject(1);
 
     assertTrue(rs.next().get());
@@ -139,7 +139,7 @@ public class VxRefCursorTest extends VxBaseTest4 {
     assumeCallableStatementsSupported();
     VxCallableStatement call = con.prepareCall("{ ? = call testspg__getEmptyRefcursor () }");
     call.registerOutParameter(1, cursorType);
-    call.execute();
+    call.execute().get();
 
     VxResultSet rs = (VxResultSet) call.getObject(1);
     assertTrue(!rs.next().get());
@@ -154,7 +154,11 @@ public class VxRefCursorTest extends VxBaseTest4 {
 
     VxCallableStatement call = con.prepareCall("{ ? = call testspg__getRefcursor () }");
     call.registerOutParameter(1, cursorType);
-    call.execute();
+    try {
+      call.execute().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
 
     VxResultSet rs = (VxResultSet) call.getObject(1);
     ResultSetMetaData rsmd = rs.getMetaData();
@@ -173,7 +177,11 @@ public class VxRefCursorTest extends VxBaseTest4 {
     VxCallableStatement call = con.prepareCall("{ ? = call testspg__getRefcursor () }",
         java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
     call.registerOutParameter(1, cursorType);
-    call.execute();
+    try {
+      call.execute().get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new SQLException(e);
+    }
     VxResultSet rs = (VxResultSet) call.getObject(1);
 
     assertEquals(rs.getType(), java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE);

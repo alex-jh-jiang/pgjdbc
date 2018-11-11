@@ -126,7 +126,7 @@ public class VxCopyTest {
   @Test
   public void testCopyInAsOutputStream() throws SQLException, IOException, InterruptedException, ExecutionException {
     String sql = "COPY copytest FROM STDIN";
-    OutputStream os = new PGCopyOutputStream((PGConnection) con, sql, 1000);
+    OutputStream os = PGCopyOutputStream.getPGCopyOutputStreamInstance((PGConnection) con, sql, 1000).get();
     for (String anOrigData : origData) {
       byte[] buf = anOrigData.getBytes();
       os.write(buf);
@@ -282,7 +282,7 @@ public class VxCopyTest {
   public void testStatementCopyIn() throws SQLException, InterruptedException, ExecutionException {
     VxStatement stmt = con.createStatement();
     try {
-      stmt.execute("COPY copytest FROM STDIN");
+      stmt.execute("COPY copytest FROM STDIN").get();
       fail("Should have failed because copy doesn't work from a Statement.");
     } catch (SQLException sqle) {
     }
@@ -297,7 +297,7 @@ public class VxCopyTest {
 
     VxStatement stmt = con.createStatement();
     try {
-      stmt.execute("COPY copytest TO STDOUT");
+      stmt.execute("COPY copytest TO STDOUT").get();
       fail("Should have failed because copy doesn't work from a Statement.");
     } catch (SQLException sqle) {
     }
@@ -317,17 +317,17 @@ public class VxCopyTest {
 
   @Test
   public void testCopyRollback() throws SQLException, InterruptedException, ExecutionException {
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
     testCopyInByRow();
-    con.rollback();
+    con.rollback().get();
     assertEquals(0, getCount());
   }
 
   @Test
   public void testChangeDateStyle() throws SQLException, InterruptedException, ExecutionException {
     try {
-      con.setAutoCommit(false);
-      con.setTransactionIsolation(java.sql.Connection.TRANSACTION_REPEATABLE_READ);
+      con.setAutoCommit(false).get();
+      con.setTransactionIsolation(java.sql.Connection.TRANSACTION_REPEATABLE_READ).get();
       CopyManager manager = con.unwrap(PGConnection.class).getCopyAPI();
 
       VxStatement stmt = con.createStatement();
@@ -368,7 +368,7 @@ public class VxCopyTest {
     // operation, use pg_terminate_backend to rudely break it,
     // and then cancel. The test passes if a subsequent operation
     // on the Connection object fails to deadlock.
-    con.setAutoCommit(false);
+    con.setAutoCommit(false).get();
 
     VxStatement stmt = con.createStatement();
     VxResultSet rs = stmt.executeQuery("select pg_backend_pid()").get();
@@ -426,7 +426,12 @@ public class VxCopyTest {
     @Override
     public void run() {
       try {
-        con.rollback();
+        try {
+          con.rollback().get();
+        } catch (InterruptedException | ExecutionException e) {
+          // TODO Auto-generated catch block
+          throw new SQLException(e);
+        }
       } catch (SQLException e) {
         rollbackException = e;
       }
@@ -448,7 +453,11 @@ public class VxCopyTest {
     try {
       VxPreparedStatement stmt = killerCon.prepareStatement("select pg_terminate_backend(?)");
       stmt.setInt(1, pid);
-      stmt.execute();
+      try {
+        stmt.execute().get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new SQLException(e);
+      }
     } finally {
       killerCon.close();
     }

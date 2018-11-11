@@ -163,9 +163,9 @@ public class VxBatchFailureTest extends VxBaseTest4 {
     super.setUp();
     VxTestUtil.createTable(con, "batchUpdCnt", "id varchar(512) primary key, data varchar(512)");
     VxStatement stmt = con.createStatement();
-    stmt.executeUpdate("INSERT INTO batchUpdCnt(id) VALUES ('key-2')");
+    stmt.executeUpdate("INSERT INTO batchUpdCnt(id) VALUES ('key-2')").get();
     stmt.close();
-    con.setAutoCommit(autoCommit == AutoCommit.YES);
+    con.setAutoCommit(autoCommit == AutoCommit.YES).get();
   }
 
   @Test
@@ -243,7 +243,7 @@ public class VxBatchFailureTest extends VxBaseTest4 {
     }
 
     if (!con.getAutoCommit()) {
-      con.commit();
+      con.commit().get();
     }
 
     int finalCount = getBatchUpdCount();

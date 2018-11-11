@@ -56,7 +56,7 @@ public class VxBlobTransactionTest {
     try {
       sql =
           "CREATE OR REPLACE FUNCTION lo_manage() RETURNS pg_catalog.trigger AS '$libdir/lo' LANGUAGE C";
-      st.executeUpdate(sql);
+      st.executeUpdate(sql).get();
     } finally {
       st.close();
     }
